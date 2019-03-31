@@ -109,7 +109,8 @@ pi@raspberrypi:~ $ ebusctl read Time
 
 ## fhem
 - it's not the nicest interface but it looks mature and stable
-- installation instructions for debian/raspberry: https://debian.fhem.de/
+- installation instructions for debian/raspberry: https://debian.fhem.de/ 
+- add repository: deb http://debian.fhem.de/nightly/ / in sources.list
 ```
    sudo wget http://debian.fhem.de/archive.key | apt-key add -
    sudo nano /etc/apt/sources.list
