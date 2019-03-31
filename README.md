@@ -94,15 +94,27 @@ here you can find the names f37 and bai for the devicenames needed for further u
 
 - in parallel commands can be queried:
 -- to read: examples:
-```ebusctl read Time
+```
+ebusctl read Time
 14:30:30
 ```
--- or writing
-```pi@raspberrypi:~ $ ebusctl write -c f37 Time 14:00:00
+-- or writing:
+```
+pi@raspberrypi:~ $ ebusctl write -c f37 Time 14:00:00
 done
 
 pi@raspberrypi:~ $ ebusctl read Time
 14:00:02
+```
+
+## fhem
+- it's not the nicest interface but it looks mature and stable
+- installation instructions for debian/raspberry: https://debian.fhem.de/
+```
+   sudo wget http://debian.fhem.de/archive.key | apt-key add -
+   sudo nano /etc/apt/sources.list
+   sudo apt-get update
+   sudo apt-get install fhem
 ```
 
 
