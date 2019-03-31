@@ -1,6 +1,6 @@
 # HomeAutomation
 
-## hardware ebusd adapter.
+## hardware ebusd adapter
 - read here: https://ebus.github.io/adapter/index.en.html
 - ordered on the fhem forum, https://forum.fhem.de/index.php/topic,93190.msg857894.html#msg857894
 - I've used the based board (which might not have been the best choice)
@@ -8,9 +8,10 @@
 ## install ebusd
 It's an awesome tool, it's however a challenge to find your way :).
 - installed on raspberry pi 3
+- used raspbian lite
 - follow these instructions: https://github.com/john30/ebusd-debian/blob/master/README.md
-- I've had some weird issues: https://github.com/john30/ebusd/issues/276
-- check with: `dmesg | grep cp210` if it's added to ttUSB0 (only relevant if you're using cp210 as uart device of course)
+- I've had some weird issues that magically got resolved: https://github.com/john30/ebusd/issues/276
+- check with: `dmesg | grep cp210` if the adpater is added to ttUSB0 (only relevant if you're using cp210 as uart device of course)
 output should look something like this:
 ```pi@raspberrypi:/ $ dmesg | grep cp210
 [    3.826051] usbcore: registered new interface driver cp210x
