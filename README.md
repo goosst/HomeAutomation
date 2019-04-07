@@ -107,6 +107,10 @@ pi@raspberrypi:~ $ ebusctl read Time
 14:00:02
 ```
 
+## hassbian hass.io homme-assistant
+- not confusing at all
+
+
 ## fhem
 - it's not the nicest interface but it looks mature and stable
 - installation instructions for debian/raspberry: https://debian.fhem.de/ 
