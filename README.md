@@ -67,6 +67,7 @@ pi@raspberrypi:/ $ ebusd -f --scanconfig
 2019-03-31 13:31:17.474 [update notice] received update-write bai SetMode QQ=10: auto;0.0;-;-;1;0;1;0;0;0
 ```
 
+- make sure ebusd starts up when the raspberry boots: https://github.com/john30/ebusd/wiki/2.-Run
 - in parallel commands with ebusctl can be queried
 ```pi@raspberrypi:~ $ ebusctl info
 version: ebusd 3.3.v3.3
@@ -108,7 +109,7 @@ pi@raspberrypi:~ $ ebusctl read Time
 ```
 
 ## hassbian hass.io homme-assistant
-- not confusing at all
+- hassbian, hass.io, homme-assistant, ... not confusing at all. I'm using hassbian since at least I know from above ebusd works on a debian environment :)
 
 
 ## fhem
