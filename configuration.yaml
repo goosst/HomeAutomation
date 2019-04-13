@@ -1,0 +1,53 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: 50.9333
+  longitude: 4.0333
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 0
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Europe/Brussels
+  # Customization file
+  customize: !include customize.yaml
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Show the introduction message on startup.
+introduction:
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+# http:
+#   base_url: example.duckdns.org:8123
+
+# Discover some devices automatically
+discovery:
+
+mqtt:
+  broker: 127.0.0.1
+
+# Sensors
+sensor:
+  # Weather prediction
+  - platform: yr
+  - platform: mqtt
+    state_topic: sensor/fubar
+    name: time thermostat
+
+#NMAP is unreliable without scan_options
+device_tracker:
+  - platform: nmap_tracker
+    hosts: 192.168.0.1-254
+    consider_home: 600
+    interval_seconds: 180
+    scan_options: " -min-rtt-timeout 3s --privileged -sP "
+    new_device_defaults:
+      track_new_devices: true
+      hide_if_away: true
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
