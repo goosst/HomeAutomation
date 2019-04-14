@@ -115,8 +115,9 @@ pi@raspberrypi:~ $ ebusctl read Time
 - hassbian, hass.io, homme-assistant, ... not confusing at all. I'm using hassbian since at least I know from above ebusd works on a debian environment :)
 - additional installations beside the normal updating and upgrading: 
 ```
-pip3 install schedule
 sudo apt-get install net-tools nmap
+sudo hassbian-config install mosquitto
+sudo hassbian-config install samba
 ```
 
 

@@ -35,15 +35,38 @@ mqtt:
 sensor:
   - platform: yr
   - platform: mqtt
-    state_topic: sensor/thermostat/fubar #sensor/thermostat/fubar
-    name: "time thermostat"
+    name: "Temperature living"
+    state_topic: sensor/thermostat/temperature
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Temperature setpoint living"
+    state_topic: sensor/thermostat/temperature_set
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Temperature flow radiator"
+    state_topic: sensor/thermostat/temperature_flowtemp
+    unit_of_measurement: "°C"
+
 
 shell_command:
   set_temp_high: python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature_on.py
   set_temp_low: python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature_off.py
   read_ebus: python3 /home/homeassistant/.homeassistant/python_scripts/readtime_thermostat.py
 
-python_script:
+history_graph:
+  gr1:
+    name: temperature living
+    entities:
+      - sensor.temperature_setpoint_living
+      - sensor.temperature_living
+    hours_to_show: 72
+    refresh: 600
+  gr2:
+    name: temperature heater
+    entities:
+      - sensor.temperature_flow_radiator
+    hours_to_show: 72
+    refresh: 600
 
 automation leaving_house:
   alias: set temp low when leaving house
@@ -60,13 +83,17 @@ automation leaving_house:
 automation at_home:
   alias: set temp high when being home
   trigger:
-    platform: state
-    entity_id: device_tracker.7c_7d_3d_ba_ef_be
-    to: 'home'
+    platform: time_pattern
+    minutes: '/5'
   condition:
-    condition: time
-    after: '06:30:00'
-    before: '22:30:00'
+    condition: and
+    conditions:
+      - condition: time
+        after: '06:30:00'
+        before: '22:30:00'
+      - condition: state
+        entity_id: device_tracker.7c_7d_3d_ba_ef_be
+        state: 'home'
   action:
     service: shell_command.set_temp_high
     data:
@@ -82,18 +109,25 @@ automation sleep:
     data:
       message: "sleeping, heating low"
 
+automation wakeup:
+  alias: wakup, turn heating up
+  trigger:
+    platform: time
+    at: '06:25:00'
+  action:
+    service: shell_command.set_temp_high
+    data:
+      message: "wakeup, heating high"
 
 automation ebusreading:
   alias: read ebus
   trigger:
-    platform: homeassistant
-    # Event can also be 'shutdown'
-    event: start
+    platform: time_pattern
+    minutes: '/7'
   action:
     service: shell_command.read_ebus
     data:
-      message: "thermostat reading initialized"
-
+      message: "thermostat reading"
 
 
 #NMAP is unreliable without scan_options
