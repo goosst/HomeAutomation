@@ -1,0 +1,56 @@
+
+5c_35_3b_70_05_29:
+  hide_if_away: false
+  icon:
+  mac: 5C:35:3B:70:05:29
+  name: 5c 35 3b 70 05 29
+  picture:
+  track: false
+
+48_45_20_4f_af_2e:
+  hide_if_away: false
+  icon:
+  mac: 48:45:20:4F:AF:2E
+  name: 48 45 20 4f af 2e
+  picture:
+  track: false
+
+7c_7d_3d_ba_ef_be:
+  hide_if_away: false
+  icon:
+  mac: 7C:7D:3D:BA:EF:BE
+  name: Stijn GSM
+  picture:
+  track: true
+
+dc_4f_22_37_5c_58:
+  hide_if_away: false
+  icon:
+  mac: DC:4F:22:37:5C:58
+  name: dc 4f 22 37 5c 58
+  picture:
+  track: true
+
+94_e3_6d_61_59_73:
+  hide_if_away: false
+  icon:
+  mac: 94:E3:6D:61:59:73
+  name: 94 e3 6d 61 59 73
+  picture:
+  track: true
+
+f0_03_8c_05_f0_db:
+  hide_if_away: false
+  icon:
+  mac: F0:03:8C:05:F0:DB
+  name: f0 03 8c 05 f0 db
+  picture:
+  track: true
+
+a0_6f_aa_9f_73_7a:
+  hide_if_away: false
+  icon:
+  mac: A0:6F:AA:9F:73:7A
+  name: a0 6f aa 9f 73 7a
+  picture:
+  track: true

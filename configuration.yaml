@@ -11,7 +11,7 @@ homeassistant:
   # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   time_zone: Europe/Brussels
   # Customization file
-  customize: !include customize.yaml
+  # customize: !include customize.yaml
 
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
@@ -28,14 +28,73 @@ discovery:
 
 mqtt:
   broker: 127.0.0.1
+  username: stijn
+  password: mqtt
+  discovery: true
 
-# Sensors
 sensor:
-  # Weather prediction
   - platform: yr
   - platform: mqtt
-    state_topic: sensor/fubar
-    name: time thermostat
+    state_topic: sensor/thermostat/fubar #sensor/thermostat/fubar
+    name: "time thermostat"
+
+shell_command:
+  set_temp_high: python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature_on.py
+  set_temp_low: python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature_off.py
+  read_ebus: python3 /home/homeassistant/.homeassistant/python_scripts/readtime_thermostat.py
+
+python_script:
+
+automation leaving_house:
+  alias: set temp low when leaving house
+  trigger:
+    platform: state
+    entity_id: device_tracker.7c_7d_3d_ba_ef_be
+    from: 'home'
+    to: 'not_home'
+  action:
+    service: shell_command.set_temp_low
+    data:
+      message: "Stijn left house: heating low"
+
+automation at_home:
+  alias: set temp high when being home
+  trigger:
+    platform: state
+    entity_id: device_tracker.7c_7d_3d_ba_ef_be
+    to: 'home'
+  condition:
+    condition: time
+    after: '06:30:00'
+    before: '22:30:00'
+  action:
+    service: shell_command.set_temp_high
+    data:
+      message: "Stijn is home: heating high"
+
+automation sleep:
+  alias: sleep, turn heating down
+  trigger:
+    platform: time
+    at: '22:35:00'
+  action:
+    service: shell_command.set_temp_low
+    data:
+      message: "sleeping, heating low"
+
+
+automation ebusreading:
+  alias: read ebus
+  trigger:
+    platform: homeassistant
+    # Event can also be 'shutdown'
+    event: start
+  action:
+    service: shell_command.read_ebus
+    data:
+      message: "thermostat reading initialized"
+
+
 
 #NMAP is unreliable without scan_options
 device_tracker:
@@ -43,11 +102,8 @@ device_tracker:
     hosts: 192.168.0.1-254
     consider_home: 600
     interval_seconds: 180
-    scan_options: " -min-rtt-timeout 3s --privileged -sP "
-    new_device_defaults:
-      track_new_devices: true
-      hide_if_away: true
+    scan_options: " -min-rtt-timeout 3s " #scan_options: " -min-rtt-timeout 3s --privileged -sP "
 
-group: !include groups.yaml
-automation: !include automations.yaml
-script: !include scripts.yaml
+#group: !include groups.yaml
+#automation: !include automations.yaml
+#script: !include scripts.yaml

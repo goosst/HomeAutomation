@@ -69,7 +69,8 @@ pi@raspberrypi:/ $ ebusd -f --scanconfig
 
 - make sure ebusd starts up when the raspberry boots: https://github.com/john30/ebusd/wiki/2.-Run
 - in parallel commands with ebusctl can be queried
-```pi@raspberrypi:~ $ ebusctl info
+```
+pi@raspberrypi:~ $ ebusctl info
 version: ebusd 3.3.v3.3
 signal: acquired
 symbol rate: 23
@@ -93,6 +94,8 @@ address 36: slave #8, ebusd
 ```
 here you can find the names f37 and bai for the devicenames needed for further usage in ebusd.
 
+- you have to look up the mentioned csv files (e.g. 15.f37.csv) to see which parameters are available and which ones have read permission, which ones have write permissions:  https://github.com/john30/ebusd-configuration/tree/master/ebusd-2.1.x/en/vaillant
+
 - in parallel commands can be queried:
 -- to read: examples:
 ```
@@ -110,10 +113,15 @@ pi@raspberrypi:~ $ ebusctl read Time
 
 ## hassbian hass.io homme-assistant
 - hassbian, hass.io, homme-assistant, ... not confusing at all. I'm using hassbian since at least I know from above ebusd works on a debian environment :)
+- additional installations beside the normal updating and upgrading: 
+```
+pip3 install schedule
+sudo apt-get install net-tools nmap
+```
+
 
 
 ## fhem
-- it's not the nicest interface but it looks mature and stable
 - installation instructions for debian/raspberry: https://debian.fhem.de/ 
 - add repository: deb http://debian.fhem.de/nightly/ / in sources.list
 ```
