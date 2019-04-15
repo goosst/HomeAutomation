@@ -2,8 +2,8 @@ homeassistant:
   # Name of the location where Home Assistant is running
   name: Home
   # Location required to calculate the time the sun rises and sets
-  latitude: 50.9333
-  longitude: 4.0333
+  latitude: !secret gps_lat
+  longitude: !secret gps_long
   # Impacts weather/sunrise data (altitude above sea level in meters)
   elevation: 0
   # metric for Metric, imperial for Imperial
@@ -29,11 +29,19 @@ discovery:
 mqtt:
   broker: 127.0.0.1
   username: stijn
-  password: mqtt
+  password: !secret pass_mqtt
   discovery: true
 
 sensor:
   - platform: yr
+    name: weather_yr
+    forecast: 24
+    monitored_conditions:
+      - temperature
+      - precipitation
+      - windDirection
+      - windSpeed
+      - symbol
   - platform: mqtt
     name: "Temperature living"
     state_topic: sensor/thermostat/temperature
@@ -46,7 +54,21 @@ sensor:
     name: "Temperature flow radiator"
     state_topic: sensor/thermostat/temperature_flowtemp
     unit_of_measurement: "°C"
-
+  - platform: buienradar
+    name: buienradar
+    monitored_conditions:
+      - conditioncode
+      - conditiondetailed
+      - temperature
+      - groundtemperature
+      - windspeed
+      - winddirection
+      - rainchance_1d
+      - rain_1d
+      - precipitation
+      - precipitation_forecast_average
+      - irradiance
+      - symbol
 
 shell_command:
   set_temp_high: python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature_on.py
