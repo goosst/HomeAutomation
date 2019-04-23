@@ -5,7 +5,7 @@
   mac: 5C:35:3B:70:05:29
   name: 5c 35 3b 70 05 29
   picture:
-  track: false
+  track: true
 
 48_45_20_4f_af_2e:
   hide_if_away: false
@@ -13,7 +13,7 @@
   mac: 48:45:20:4F:AF:2E
   name: 48 45 20 4f af 2e
   picture:
-  track: false
+  track: true
 
 7c_7d_3d_ba_ef_be:
   hide_if_away: false

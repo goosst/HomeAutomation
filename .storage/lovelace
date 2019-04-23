@@ -64,7 +64,7 @@
                             "type": "entities"
                         },
                         {
-                            "aspect_ratio": "120%",
+                            "aspect_ratio": "140%",
                             "title": "buien",
                             "type": "iframe",
                             "url": "https://weerdata.weerslag.nl/image/1.0/?size=ani-forecast-550x550&type=Freecontent&v=14487341"
@@ -81,7 +81,8 @@
                         "sun.sun",
                         "sensor.temperature_flow_radiator",
                         "sensor.temperature_living",
-                        "sensor.temperature_setpoint_living"
+                        "sensor.temperature_setpoint_living",
+                        "input_number.slider1"
                     ],
                     "cards": [
                         {

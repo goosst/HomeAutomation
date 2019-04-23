@@ -74,6 +74,7 @@ shell_command:
   set_temp_high: python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature_on.py
   set_temp_low: python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature_off.py
   read_ebus: python3 /home/homeassistant/.homeassistant/python_scripts/readtime_thermostat.py
+  set_temp_living: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider1.state }}'
 
 history_graph:
   gr1:
@@ -89,6 +90,23 @@ history_graph:
       - sensor.temperature_flow_radiator
     hours_to_show: 72
     refresh: 600
+
+input_number:
+  slider1:
+    name: Set temperature
+    initial: 21
+    min: 5
+    max: 30
+    step: 0.25
+    unit_of_measurement: "°C"
+
+automation slider:
+  - alias: set_temperature_living
+    trigger:
+      platform: state
+      entity_id: input_number.slider1
+    action:
+      service: shell_command.set_temp_living
 
 automation leaving_house:
   alias: set temp low when leaving house

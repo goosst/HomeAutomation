@@ -1,14 +1,6 @@
 import subprocess
 #import time
 
-# read time
-#cp = subprocess.run(["ebusctl read Time"],shell=True,stdout=subprocess.PIPE)
-#cp_string=cp.stdout.decode('utf-8')
-#time_read=cp_string[0:8]
-#msg1="mosquitto_pub -h localhost -t sensor/thermostat/fubar -u stijn -P mqtt -m "
-#print(time_read)
-#cp = subprocess.run([msg1+time_read],shell=True,stdout=subprocess.PIPE)
-
 #read temperature measured by thermostat
 cp = subprocess.run(["ebusctl read RoomTemp"],shell=True,stdout=subprocess.PIPE)
 cp_string=cp.stdout.decode('utf-8')
@@ -33,3 +25,13 @@ busread=cp_string[0:4]
 #print(busread)
 msg1="mosquitto_pub -h localhost -t sensor/thermostat/temperature_flowtemp -u stijn -P mqtt -m "
 cp = subprocess.run([msg1+busread],shell=True,stdout=subprocess.PIPE)
+
+
+# read time
+#cp = subprocess.run(["ebusctl read Time"],shell=True,stdout=subprocess.PIPE)
+#cp_string=cp.stdout.decode('utf-8')
+#time_read=cp_string[0:8]
+#msg1="mosquitto_pub -h localhost -t sensor/thermostat/fubar -u stijn -P mqtt -m "
+#print(time_read)
+#cp = subprocess.run([msg1+time_read],shell=True,stdout=subprocess.PIPE)
+

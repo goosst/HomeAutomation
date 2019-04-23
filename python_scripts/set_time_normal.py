@@ -9,7 +9,7 @@ msg1="ebusctl write -c f37 Time "
 cp = subprocess.run([msg1+time_system],shell=True,stdout=subprocess.PIPE)
 
 msg2="ebusctl write -c f37 Date "
-cp = subprocess.run([msg1+date_system],shell=True,stdout=subprocess.PIPE)
+cp = subprocess.run([msg2+date_system],shell=True,stdout=subprocess.PIPE)
 
 
 #ebusctl read Date, 14.04.2019
