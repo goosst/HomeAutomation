@@ -1,0 +1,49 @@
+title: My Awesome Home
+theme: dark-mode
+views:
+    # View tab title.
+  - title: Weather
+    cards:
+        # The markdown card will render markdown text.
+      - type: entities
+        title: Weersvoorspelling
+        entities:
+          - sensor.br_detailed_condition
+          - sensor.br_ground_temperature
+          - sensor.br_temperature
+          - sensor.br_precipitation
+          - sensor.br_precipitation_forecast_average
+          - sensor.br_rain_1d
+          - sensor.br_wind_speed
+          - sensor.br_wind_direction
+      - type: iframe
+        url: https://weerdata.weerslag.nl/image/1.0/?size=ani-forecast-550x550&type=Freecontent&v=14487341
+        aspect_ratio: 140%
+        title: Buien
+  - title: Verwarming
+    cards:
+      - type: glance
+        title: temperaturen
+        entities:
+          - sensor.temperature_living
+          - sensor.temperature_setpoint_living
+          - input_number.slider1
+      - type: history-graph
+        title: 'living temperature'
+        entities:
+          - sensor.temperature_setpoint_living
+          - sensor.temperature_living
+        hours_to_show: 72
+        refresh_interval: 600
+      - type: history-graph
+        title: 'heater setpunt'
+        entities:
+          - sensor.temperature_flow_radiator
+        hours_to_show: 72
+        refresh_interval: 600
+  - title: Presence
+    cards:
+      - type: glance
+        title: aanwezigheid
+        entities:
+          - device_tracker.7c_7d_3d_ba_ef_be

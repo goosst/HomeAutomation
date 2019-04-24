@@ -16,6 +16,10 @@ homeassistant:
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
+lovelace:
+  mode: yaml
+
+
 # Show the introduction message on startup.
 introduction:
 
@@ -55,7 +59,6 @@ sensor:
     state_topic: sensor/thermostat/temperature_flowtemp
     unit_of_measurement: "°C"
   - platform: buienradar
-    name: buienradar
     monitored_conditions:
       - conditioncode
       - conditiondetailed
