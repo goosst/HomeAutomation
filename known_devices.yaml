@@ -54,3 +54,11 @@ a0_6f_aa_9f_73_7a:
   name: a0 6f aa 9f 73 7a
   picture:
   track: true
+
+84_9f_b5_e3_4e_7b:
+  hide_if_away: false
+  icon:
+  mac: 84:9F:B5:E3:4E:7B
+  name: 84 9f b5 e3 4e 7b
+  picture:
+  track: true

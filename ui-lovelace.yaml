@@ -22,12 +22,22 @@ views:
         title: Buien
   - title: Verwarming
     cards:
-      - type: glance
+      - type: entities
         title: temperaturen
         entities:
           - sensor.temperature_living
           - sensor.temperature_setpoint_living
+          - input_number.slider_day
+          - input_number.slider_night
           - input_number.slider1
+      - type: glance
+        title: automations
+        entities:
+          - automation.sleep_turn_heating_down
+          - automation.read_ebus
+          - automation.set_temp_high_when_being_home
+          - automation.set_temp_low_when_leaving_house
+          - automation.wakup_turn_heating_up
       - type: history-graph
         title: 'living temperature'
         entities:
@@ -47,3 +57,9 @@ views:
         title: aanwezigheid
         entities:
           - device_tracker.7c_7d_3d_ba_ef_be
+  - title: media
+    cards:
+      - type: media-control
+        entity: media_player.kodi_libreelec_local
+      - type: media-control
+        entity: media_player.living_main

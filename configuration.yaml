@@ -21,7 +21,7 @@ lovelace:
 
 
 # Show the introduction message on startup.
-introduction:
+#introduction:
 
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
 # http:
@@ -29,6 +29,10 @@ introduction:
 
 # Discover some devices automatically
 discovery:
+
+media_player:
+  - platform: yamaha_musiccast
+    host: 192.168.0.163
 
 mqtt:
   broker: 127.0.0.1
@@ -74,10 +78,11 @@ sensor:
       - symbol
 
 shell_command:
-  set_temp_high: python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature_on.py
-  set_temp_low: python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature_off.py
-  read_ebus: python3 /home/homeassistant/.homeassistant/python_scripts/readtime_thermostat.py
+  set_temp_high: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_day.state }}'
+  set_temp_low: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_night.state }}'
+  read_ebus: python3 /home/homeassistant/.homeassistant/python_scripts/read_ebus.py
   set_temp_living: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider1.state }}'
+  set_time: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_time_normal.py'
 
 history_graph:
   gr1:
@@ -96,10 +101,24 @@ history_graph:
 
 input_number:
   slider1:
-    name: Set temperature
+    name: Set Now
     initial: 21
     min: 5
     max: 30
+    step: 0.25
+    unit_of_measurement: "°C"
+  slider_night:
+    name: Temp Night
+    initial: 15
+    min: 5
+    max: 23
+    step: 0.25
+    unit_of_measurement: "°C"
+  slider_day:
+    name: Temp Day
+    initial: 21
+    min: 5
+    max: 25
     step: 0.25
     unit_of_measurement: "°C"
 
@@ -152,11 +171,47 @@ automation sleep:
     data:
       message: "sleeping, heating low"
 
-automation wakeup:
+automation wakeup_week:
   alias: wakup, turn heating up
   trigger:
     platform: time
     at: '06:25:00'
+  condition:
+    - condition: time
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+  action:
+    service: shell_command.set_temp_high
+    data:
+      message: "wakeup, heating high"
+
+automation wakeup_satur:
+  alias: wakup, turn heating up
+  trigger:
+    platform: time
+    at: '07:35:00'
+  condition:
+    - condition: time
+      weekday:
+        - sat
+  action:
+    service: shell_command.set_temp_high
+    data:
+      message: "wakeup, heating high"
+
+automation wakeup_sunday:
+  alias: wakup, turn heating up
+  trigger:
+    platform: time
+    at: '08:00:00'
+  condition:
+    - condition: time
+      weekday:
+        - sun
   action:
     service: shell_command.set_temp_high
     data:
