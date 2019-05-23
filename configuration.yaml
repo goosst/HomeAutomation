@@ -170,6 +170,30 @@ automation slider:
     action:
       service: shell_command.set_temp_living
 
+automation alarm:
+  - alias: heating off when turning alarm on
+    trigger:
+      platform: state
+      entity_id: sensor.alarm_state
+      from: '1' #1 means alarm is off
+      to: '0'
+    action:
+      service: shell_command.set_temp_low
+      data:
+        message: "Stijn left house: heating"
+
+automation alarm2:
+  - alias: heating on when turning alarm off
+    trigger:
+      platform: state
+      entity_id: sensor.alarm_state
+      from: '0' #1 means alarm is off
+      to: '1'
+    action:
+      service: shell_command.set_temp_high
+      data:
+        message: "Stijn left house: heating"
+
 automation leaving_house:
   alias: set temp low when leaving house
   trigger:
@@ -182,64 +206,64 @@ automation leaving_house:
     data:
       message: "Stijn left house: heating low"
 
-automation at_home_weekday:
-  alias: set temp high when being home workday
-  trigger:
-    platform: time_pattern
-    minutes: '/5'
-  condition:
-    condition: and
-    conditions:
-      - condition: time
-        after: '06:30:00'
-        before: '22:30:00'
-      - condition: state
-        entity_id: device_tracker.7c_7d_3d_ba_ef_be
-        state: 'home'
-      - condition: time
-        weekday:
-          - mon
-          - tue
-          - wed
-          - thu
-          - fri
-  action:
-    service: shell_command.set_temp_high
-    data:
-      message: "Stijn is home: heating high"
+# automation at_home_weekday:
+#   alias: set temp high when being home workday
+#   trigger:
+#     platform: time_pattern
+#     minutes: '/5'
+#   condition:
+#     condition: and
+#     conditions:
+#       - condition: time
+#         after: '06:30:00'
+#         before: '22:30:00'
+#       - condition: state
+#         entity_id: device_tracker.7c_7d_3d_ba_ef_be
+#         state: 'home'
+#       - condition: time
+#         weekday:
+#           - mon
+#           - tue
+#           - wed
+#           - thu
+#           - fri
+#   action:
+#     service: shell_command.set_temp_high
+#     data:
+#       message: "Stijn is home: heating high"
 
-automation at_home_weekend:
-  alias: set temp high when being home weekend
-  trigger:
-    platform: time_pattern
-    minutes: '/5'
-  condition:
-    condition: and
-    conditions:
-      - condition: time
-        after: '08:00:00'
-        before: '23:00:00'
-      - condition: state
-        entity_id: device_tracker.7c_7d_3d_ba_ef_be
-        state: 'home'
-      - condition: time
-        weekday:
-          - sat
-          - sun
-  action:
-    service: shell_command.set_temp_high
-    data:
-      message: "Stijn is home: heating high"
+# automation at_home_weekend:
+#   alias: set temp high when being home weekend
+#   trigger:
+#     platform: time_pattern
+#     minutes: '/5'
+#   condition:
+#     condition: and
+#     conditions:
+#       - condition: time
+#         after: '08:00:00'
+#         before: '23:00:00'
+#       - condition: state
+#         entity_id: device_tracker.7c_7d_3d_ba_ef_be
+#         state: 'home'
+#       - condition: time
+#         weekday:
+#           - sat
+#           - sun
+#   action:
+#     service: shell_command.set_temp_high
+#     data:
+#       message: "Stijn is home: heating high"
 
-automation sleep:
-  alias: sleep, turn heating down
-  trigger:
-    platform: time
-    at: '22:35:00'
-  action:
-    service: shell_command.set_temp_low
-    data:
-      message: "sleeping, heating low"
+# automation sleep:
+#   alias: sleep, turn heating down
+#   trigger:
+#     platform: time
+#     at: '22:35:00'
+#   action:
+#     service: shell_command.set_temp_low
+#     data:
+#       message: "sleeping, heating low"
 
 automation wakeup_week:
   alias: wakup, turn heating up weekday

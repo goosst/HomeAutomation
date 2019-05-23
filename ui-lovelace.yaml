@@ -46,10 +46,11 @@ views:
       - type: entities
         title: automations
         entities:
-          - automation.sleep_turn_heating_down
+          - automation.heating_off_when_turning_alarm_on
+          - automation.heating_on_when_turning_alarm_off
           - automation.read_ebus
-          - automation.set_temp_high_when_being_home_weekend
-          - automation.set_temp_high_when_being_home_workday
+  #        - automation.set_temp_high_when_being_home_weekend
+  #        - automation.set_temp_high_when_being_home_workday
           - automation.set_temp_low_when_leaving_house
           - automation.wakup_turn_heating_up_weekday
           - automation.wakup_turn_heating_up_saturday
