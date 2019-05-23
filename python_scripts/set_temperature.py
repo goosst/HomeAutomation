@@ -2,7 +2,7 @@ import subprocess
 import time
 import getopt
 import sys
-#from ilock import ILock
+from ilock import ILock
 
 # check if passed options are valid
 try:
@@ -21,28 +21,28 @@ for opt, value in options:
         print("successful argument")
         print(msg2)
 
-#with ILock('ebus', timeout=200):
-msg1="ebusctl write -c f37 Hc1DayTemp "
-cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+with ILock('ebus', timeout=200):
+	msg1="ebusctl write -c f37 Hc1DayTemp "
+	cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
 
-msg1="ebusctl write -c f37 Hc1NightTemp "
-cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+	msg1="ebusctl write -c f37 Hc1NightTemp "
+	cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
 
-time.sleep(30)
+	time.sleep(30)
 
-#check if it is truly set
-cp = subprocess.run(["ebusctl read Hc1DayTemp"],shell=True,stdout=subprocess.PIPE)
-temp=cp.stdout
-if int(float(temp[0:4]))!=int(float(msg2)):
-    # if not set correct
-    msg1="ebusctl write -c f37 Hc1DayTemp "
-    cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+	#check if it is truly set
+	cp = subprocess.run(["ebusctl read Hc1DayTemp"],shell=True,stdout=subprocess.PIPE)
+	temp=cp.stdout
+	if int(float(temp[0:4]))!=int(float(msg2)):
+	    # if not set correct
+	    msg1="ebusctl write -c f37 Hc1DayTemp "
+	    cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
 
-cp = subprocess.run(["ebusctl read Hc1NightTemp"],shell=True,stdout=subprocess.PIPE)
-temp=cp.stdout
-if int(float(temp[0:4]))!=int(float(msg2)):
-    # if not set correct
-    msg1="ebusctl write -c f37 Hc1NightTemp "
-    cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
-else:
-    print("setting correct")
+	cp = subprocess.run(["ebusctl read Hc1NightTemp"],shell=True,stdout=subprocess.PIPE)
+	temp=cp.stdout
+	if int(float(temp[0:4]))!=int(float(msg2)):
+	    # if not set correct
+	    msg1="ebusctl write -c f37 Hc1NightTemp "
+	    cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+	else:
+	    print("setting correct")

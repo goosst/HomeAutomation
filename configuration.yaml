@@ -62,6 +62,11 @@ sensor:
     name: "Temperature flow radiator"
     state_topic: sensor/thermostat/temperature_flowtemp
     unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Alarm state"
+    state_topic: sensor/alarm
+    expire_after: 60
+    payload_not_available: "alarm offline"
   - platform: buienradar
     monitored_conditions:
       - conditioncode
@@ -83,6 +88,7 @@ shell_command:
   read_ebus: python3 /home/homeassistant/.homeassistant/python_scripts/read_ebus.py
   set_temp_living: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider1.state }}'
   set_time: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_time_normal.py'
+  set_heater: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_heater.py'
 
 history_graph:
   gr1:
@@ -122,6 +128,40 @@ input_number:
     step: 0.25
     unit_of_measurement: "°C"
 
+switch:
+  - platform: mqtt
+    name: "handdoekdroger manueel"
+    command_topic: cmnd/sonoff/Power1
+    payload_on: "ON"
+    payload_off: "OFF"
+
+binary_sensor:
+  - platform: mqtt
+    name: "heater status"
+    state_topic: 'stat/sonoff/POWER'
+
+
+automation bathroom_heater:
+  - alias: handdoekdroger automatisch
+    trigger:
+      platform: time_pattern
+      minutes: '/2'
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+        - condition: state
+          entity_id: switch.handdoekdroger_manueel
+          state: 'off'
+    action:
+      service: shell_command.set_heater #time to turn on is defined in python script
+
 automation slider:
   - alias: set_temperature_living
     trigger:
@@ -142,8 +182,8 @@ automation leaving_house:
     data:
       message: "Stijn left house: heating low"
 
-automation at_home:
-  alias: set temp high when being home
+automation at_home_weekday:
+  alias: set temp high when being home workday
   trigger:
     platform: time_pattern
     minutes: '/5'
@@ -156,6 +196,36 @@ automation at_home:
       - condition: state
         entity_id: device_tracker.7c_7d_3d_ba_ef_be
         state: 'home'
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+  action:
+    service: shell_command.set_temp_high
+    data:
+      message: "Stijn is home: heating high"
+
+automation at_home_weekend:
+  alias: set temp high when being home weekend
+  trigger:
+    platform: time_pattern
+    minutes: '/5'
+  condition:
+    condition: and
+    conditions:
+      - condition: time
+        after: '08:00:00'
+        before: '23:00:00'
+      - condition: state
+        entity_id: device_tracker.7c_7d_3d_ba_ef_be
+        state: 'home'
+      - condition: time
+        weekday:
+          - sat
+          - sun
   action:
     service: shell_command.set_temp_high
     data:
@@ -172,7 +242,7 @@ automation sleep:
       message: "sleeping, heating low"
 
 automation wakeup_week:
-  alias: wakup, turn heating up
+  alias: wakup, turn heating up weekday
   trigger:
     platform: time
     at: '06:25:00'
@@ -190,7 +260,7 @@ automation wakeup_week:
       message: "wakeup, heating high"
 
 automation wakeup_satur:
-  alias: wakup, turn heating up
+  alias: wakup, turn heating up saturday
   trigger:
     platform: time
     at: '07:35:00'
@@ -204,7 +274,7 @@ automation wakeup_satur:
       message: "wakeup, heating high"
 
 automation wakeup_sunday:
-  alias: wakup, turn heating up
+  alias: wakup, turn heating up sunday
   trigger:
     platform: time
     at: '08:00:00'

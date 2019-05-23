@@ -30,14 +30,12 @@ views:
           - input_number.slider_day
           - input_number.slider_night
           - input_number.slider1
-      - type: glance
-        title: automations
+      - type: entities
+        title: bathroom
         entities:
-          - automation.sleep_turn_heating_down
-          - automation.read_ebus
-          - automation.set_temp_high_when_being_home
-          - automation.set_temp_low_when_leaving_house
-          - automation.wakup_turn_heating_up
+          - binary_sensor.heater_status
+          - switch.handdoekdroger_manueel
+          - automation.handdoekdroger_automatisch
       - type: history-graph
         title: 'living temperature'
         entities:
@@ -45,18 +43,30 @@ views:
           - sensor.temperature_living
         hours_to_show: 72
         refresh_interval: 600
+      - type: entities
+        title: automations
+        entities:
+          - automation.sleep_turn_heating_down
+          - automation.read_ebus
+          - automation.set_temp_high_when_being_home_weekend
+          - automation.set_temp_high_when_being_home_workday
+          - automation.set_temp_low_when_leaving_house
+          - automation.wakup_turn_heating_up_weekday
+          - automation.wakup_turn_heating_up_saturday
+          - automation.wakup_turn_heating_up_sunday
       - type: history-graph
         title: 'heater setpunt'
         entities:
           - sensor.temperature_flow_radiator
         hours_to_show: 72
         refresh_interval: 600
-  - title: Presence
+  - title: Aanwezigheid
     cards:
       - type: glance
         title: aanwezigheid
         entities:
           - device_tracker.7c_7d_3d_ba_ef_be
+          - sensor.alarm_state
   - title: media
     cards:
       - type: media-control
