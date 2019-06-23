@@ -1,5 +1,4 @@
 title: My Awesome Home
-theme: dark-mode
 views:
     # View tab title.
   - title: Weather
@@ -34,7 +33,7 @@ views:
         title: bathroom
         entities:
           - binary_sensor.heater_status
-          - switch.handdoekdroger_manueel
+          - switch.handdoekdroger_control
           - automation.handdoekdroger_automatisch
       - type: history-graph
         title: 'living temperature'
@@ -61,6 +60,29 @@ views:
           - sensor.temperature_flow_radiator
         hours_to_show: 72
         refresh_interval: 600
+  - title: gras robot
+    cards:
+      - type: entities
+        title: robot control
+        entities:
+          - binary_sensor.robot_power
+          - switch.robomow_control
+      - type: entities
+        title: power/energy
+        entities:
+          - sensor.robot_energy_today
+          - sensor.robot_total_energy
+          - sensor.robot_energy_start
+          - sensor.robot_power
+          - sensor.robot_status
+      - type: history-graph
+        title: 'power robot'
+        entities:
+          - sensor.robot_power
+      - type: history-graph
+        title: 'energy robot'
+        entities:
+          - sensor.robot_total_energy
   - title: Aanwezigheid
     cards:
       - type: glance
