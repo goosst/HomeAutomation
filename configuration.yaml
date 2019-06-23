@@ -16,8 +16,12 @@ homeassistant:
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
+frontend:
+  themes: !include themes.yaml
+
 lovelace:
   mode: yaml
+
 
 
 # Show the introduction message on startup.
@@ -67,6 +71,25 @@ sensor:
     state_topic: sensor/alarm
     expire_after: 60
     payload_not_available: "alarm offline"
+  - platform: mqtt
+    name: "Robot energy today"
+    state_topic: tele/sonoffPowR2/SENSOR
+    value_template: "{{ value_json['ENERGY'].Today }}"
+    unit_of_measurement: "kWh"
+  - platform: mqtt
+    name: "Robot power"
+    state_topic: tele/sonoffPowR2/SENSOR
+    value_template: "{{ value_json['ENERGY'].Power }}"
+    unit_of_measurement: "Watt"
+  - platform: mqtt
+    name: "Robot total energy"
+    state_topic: tele/sonoffPowR2/SENSOR
+    value_template: "{{ value_json['ENERGY'].Total }}"
+    unit_of_measurement: "kWh"
+  - platform: mqtt
+    name: "Robot energy start"
+    state_topic: tele/sonoffPowR2/SENSOR
+    value_template: "{{ value_json['ENERGY'].TotalStartTime }}"
   - platform: buienradar
     monitored_conditions:
       - conditioncode
@@ -83,12 +106,12 @@ sensor:
       - symbol
 
 shell_command:
-  set_temp_high: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_day.state }}'
-  set_temp_low: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_night.state }}'
-  read_ebus: python3 /home/homeassistant/.homeassistant/python_scripts/read_ebus.py
-  set_temp_living: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider1.state }}'
-  set_time: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_time_normal.py'
-  set_heater: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_heater.py'
+  set_temp_high: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_day.state }}'
+  set_temp_low: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_night.state }}'
+  read_ebus: python3.7 /home/stijn/.homeassistant/python_scripts/read_ebus.py
+  set_temp_living: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider1.state }}'
+  set_time: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_time_normal.py'
+  set_heater: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_heater.py'
 
 history_graph:
   gr1:
@@ -104,6 +127,12 @@ history_graph:
       - sensor.temperature_flow_radiator
     hours_to_show: 72
     refresh: 600
+  gr3:
+    name: power robot
+    entities:
+      - sensor.robot_power
+    hours_to_show: 72
+    refresh: 300
 
 input_number:
   slider1:
@@ -130,15 +159,25 @@ input_number:
 
 switch:
   - platform: mqtt
-    name: "handdoekdroger manueel"
+    name: "handdoekdroger control"
     command_topic: cmnd/sonoff/Power1
+    payload_on: "ON"
+    payload_off: "OFF"
+  - platform: mqtt
+    name: "robomow control"
+    command_topic: cmnd/sonoffPowR2/Power1
     payload_on: "ON"
     payload_off: "OFF"
 
 binary_sensor:
   - platform: mqtt
     name: "heater status"
-    state_topic: 'stat/sonoff/POWER'
+    state_topic: 'tele/sonoff/STATE'
+    value_template: "{{ value_json.Power }}"
+  - platform: mqtt
+    name: "robot status"
+    state_topic: 'tele/sonoffPowR2/STATE'
+    value_template: "{{ value_json.POWER }}"
 
 
 automation bathroom_heater:
@@ -175,7 +214,7 @@ automation alarm:
     trigger:
       platform: state
       entity_id: sensor.alarm_state
-      from: '1' #1 means alarm is off
+      from: '1' #1 means alarm is off (somebody home)
       to: '0'
     action:
       service: shell_command.set_temp_low
