@@ -19,12 +19,26 @@ views:
         url: https://weerdata.weerslag.nl/image/1.0/?size=ani-forecast-550x550&type=Freecontent&v=14487341
         aspect_ratio: 140%
         title: Buien
-  - title: Verwarming
+  - title: Temperatures
+    cards:
+      - type: history-graph
+        title: 'living temperature'
+        entities:
+          - sensor.temperature_setpoint_living
+          - sensor.temperature_living
+        hours_to_show: 72
+        refresh_interval: 600
+      - type: history-graph
+        title: 'temperature zolder'
+        entities:
+          - sensor.temperature_zolder
+        hours_to_show: 72
+        refresh_interval: 600
+  - title: Heating
     cards:
       - type: entities
         title: temperaturen
         entities:
-          - sensor.temperature_living
           - sensor.temperature_setpoint_living
           - input_number.slider_day
           - input_number.slider_night
@@ -35,13 +49,6 @@ views:
           - binary_sensor.heater_status
           - switch.handdoekdroger_control
           - automation.handdoekdroger_automatisch
-      - type: history-graph
-        title: 'living temperature'
-        entities:
-          - sensor.temperature_setpoint_living
-          - sensor.temperature_living
-        hours_to_show: 72
-        refresh_interval: 600
       - type: entities
         title: automations
         entities:
@@ -65,7 +72,7 @@ views:
       - type: entities
         title: robot control
         entities:
-          - binary_sensor.robot_power
+          - binary_sensor.robot_status
           - switch.robomow_control
       - type: entities
         title: power/energy
@@ -74,22 +81,31 @@ views:
           - sensor.robot_total_energy
           - sensor.robot_energy_start
           - sensor.robot_power
-          - sensor.robot_status
       - type: history-graph
         title: 'power robot'
         entities:
           - sensor.robot_power
+        hours_to_show: 72
+        refresh_interval: 600
       - type: history-graph
         title: 'energy robot'
         entities:
           - sensor.robot_total_energy
-  - title: Aanwezigheid
+        hours_to_show: 72
+        refresh_interval: 600
+  - title: Presence
     cards:
       - type: glance
         title: aanwezigheid
         entities:
           - device_tracker.7c_7d_3d_ba_ef_be
           - sensor.alarm_state
+  - title: humidity
+    cards:
+      - type: entities
+        title: humidity zolder
+        entities:
+          - sensor.humidity_zolder
   - title: media
     cards:
       - type: media-control

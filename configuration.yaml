@@ -68,9 +68,21 @@ sensor:
     unit_of_measurement: "°C"
   - platform: mqtt
     name: "Alarm state"
-    state_topic: sensor/alarm
+    state_topic: /sensor/ESP8266-452118/data/alarm #%state_topic: sensor/alarm
     expire_after: 60
     payload_not_available: "alarm offline"
+  - platform: mqtt
+    name: "Temperature zolder"
+    state_topic: /sensor/ESP8266-452118/data/temperature
+    expire_after: 60
+    payload_not_available: "temp zolder offline"
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Humidity zolder"
+    state_topic: /sensor/ESP8266-452118/data/humidity
+    expire_after: 60
+    payload_not_available: "humidity zolder offline"
+    unit_of_measurement: "%"
   - platform: mqtt
     name: "Robot energy today"
     state_topic: tele/sonoffPowR2/SENSOR
@@ -120,7 +132,7 @@ history_graph:
       - sensor.temperature_setpoint_living
       - sensor.temperature_living
     hours_to_show: 72
-    refresh: 600
+    refresh: 300
   gr2:
     name: temperature heater
     entities:
@@ -131,6 +143,18 @@ history_graph:
     name: power robot
     entities:
       - sensor.robot_power
+    hours_to_show: 72
+    refresh: 300
+  gr4:
+    name: temperature zolder
+    entities:
+      - sensor.temperature_zolder
+    hours_to_show: 120
+    refresh: 300
+  gr5:
+    name: vochtigheid zolder
+    entities:
+      - sensor.humidity_zolder
     hours_to_show: 72
     refresh: 300
 
