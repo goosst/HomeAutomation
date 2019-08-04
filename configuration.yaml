@@ -22,8 +22,6 @@ frontend:
 lovelace:
   mode: yaml
 
-
-
 # Show the introduction message on startup.
 #introduction:
 
@@ -197,11 +195,17 @@ binary_sensor:
   - platform: mqtt
     name: "heater status"
     state_topic: 'tele/sonoff/STATE'
-    value_template: "{{ value_json.Power }}"
+    value_template: "{{value_json.POWER}}"
+    availability_topic: "tele/sonoff/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
   - platform: mqtt
     name: "robot status"
     state_topic: 'tele/sonoffPowR2/STATE'
-    value_template: "{{ value_json.POWER }}"
+    value_template: "{{value_json.POWER}}"
+    availability_topic: "tele/sonoffPowR2/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
 
 
 automation bathroom_heater:
@@ -393,6 +397,30 @@ device_tracker:
     interval_seconds: 180
     scan_options: " -min-rtt-timeout 3s " #scan_options: " -min-rtt-timeout 3s --privileged -sP "
 
+
+
+recorder:
+ purge_keep_days: 50
+ exclude:
+   domains:
+     - automation
+   entities:
+     - sensor.weather_yr_wind_speed
+     - sensor.weather_yr_wind_direction
+     - sensor.weather_yr_symbol
+     - sensor.br_wind_direction
+     - sensor.br_symbol
+     - sensor.br_rainchance_1d
+     - sensor.br_rain_1d
+     - sensor.br_precipitation_forecast_average
+     - sensor.br_irradiance
+     - sensor.br_detailed_condition
+     - sensor.br_condition_code
+     - media_player.living_main
+     - media_player.kodi_libreelec_local
+     - weather.home
+     - zone.home
+     - sun.sun
 #group: !include groups.yaml
 #automation: !include automations.yaml
 #script: !include scripts.yaml
