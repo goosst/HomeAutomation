@@ -21,7 +21,6 @@ frontend:
 
 lovelace:
   mode: yaml
-
 # Show the introduction message on startup.
 #introduction:
 
@@ -207,6 +206,15 @@ binary_sensor:
     payload_available: "Online"
     payload_not_available: "Offline"
 
+automation theme_selector:
+  - alias: 'Set theme at startup'
+    trigger:
+      platform: homeassistant
+      event: start
+    action:
+      service: frontend.set_theme
+      data:
+        name: slate
 
 automation bathroom_heater:
   - alias: handdoekdroger automatisch

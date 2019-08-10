@@ -2,6 +2,7 @@ title: My Awesome Home
 views:
     # View tab title.
   - title: Weather
+    icon: mdi:weather-sunny
     cards:
         # The markdown card will render markdown text.
       - type: entities
@@ -20,6 +21,7 @@ views:
         aspect_ratio: 140%
         title: Buien
   - title: Temperatures
+    icon: mdi:thermometer
     cards:
       - type: history-graph
         title: 'living temperature'
@@ -35,6 +37,7 @@ views:
         hours_to_show: 72
         refresh_interval: 600
   - title: Heating
+    icon: mdi:radiator
     cards:
       - type: entities
         title: temperaturen
@@ -68,32 +71,34 @@ views:
         hours_to_show: 72
         refresh_interval: 600
   - title: gras robot
+    icon: mdi:ladybug
     cards:
       - type: entities
-        title: robot control
+        title: Gras robot control
         entities:
           - binary_sensor.robot_status
           - switch.robomow_control
       - type: entities
-        title: power/energy
+        title: Energy and power
         entities:
           - sensor.robot_energy_today
           - sensor.robot_total_energy
           - sensor.robot_energy_start
           - sensor.robot_power
       - type: history-graph
-        title: 'power robot'
+        title: 'Power'
         entities:
           - sensor.robot_power
         hours_to_show: 72
         refresh_interval: 600
       - type: history-graph
-        title: 'energy robot'
+        title: 'Energy'
         entities:
           - sensor.robot_total_energy
         hours_to_show: 72
         refresh_interval: 600
   - title: Presence
+    icon: mdi:human-male-female
     cards:
       - type: glance
         title: aanwezigheid
@@ -101,12 +106,14 @@ views:
           - device_tracker.7c_7d_3d_ba_ef_be
           - sensor.alarm_state
   - title: humidity
+    icon: mdi:water-percent
     cards:
       - type: entities
         title: humidity zolder
         entities:
           - sensor.humidity_zolder
   - title: media
+    icon: mdi:television-classic
     cards:
       - type: media-control
         entity: media_player.kodi_libreelec_local
