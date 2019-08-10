@@ -104,7 +104,7 @@ views:
         title: aanwezigheid
         entities:
           - device_tracker.7c_7d_3d_ba_ef_be
-          - sensor.alarm_state
+          - binary_sensor.alarm_state
   - title: humidity
     icon: mdi:water-percent
     cards:
