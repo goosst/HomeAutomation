@@ -119,3 +119,9 @@ views:
         entity: media_player.kodi_libreelec_local
       - type: media-control
         entity: media_player.living_main
+  - title: commute
+    icon: mdi:car
+    cards:
+      - type: entities
+        entities:
+          - sensor.commute

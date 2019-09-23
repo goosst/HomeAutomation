@@ -7,10 +7,15 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.dates import DateFormatter
+import matplotlib.font_manager as fontman
 import subprocess
 import getopt
 import os
 import sys
+import wikiquote
+import textwrap
+import PIL
+from PIL import ImageFont, ImageDraw
 
 #location where figure will be stored
 path="/home/homeassistant/.homeassistant/www"
@@ -40,7 +45,7 @@ except getopt.GetoptError:
     sys.exit(2)
 for opt, value in options:
     if opt in ('-s','-S','--selection'):
-        display_option=int(value)
+        display_option=int(float(value))
         print("successful argument")
         print(display_option)
 
@@ -92,9 +97,12 @@ if display_option==2:
     time_array= np.array([])
     state_array=np.array([])
     for i in readable_json:
-        time_update=datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
-        time_array=np.append(time_array, time_update.astimezone(tz))
-        state_array=np.append(state_array,float(i['state']))
+        try:
+            state_array=np.append(state_array,float(i['state']))
+            time_update=datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
+            time_array=np.append(time_array, time_update.astimezone(tz))
+        except:
+            print("unknown state")
 
     # only plot data from last hour
     time_treshold=time_array[-1]-timedelta(hours=1)
@@ -111,6 +119,7 @@ if display_option==2:
     plt.yticks(fontsize=18)
     ax = plt.gca()
     ax.yaxis.set_major_formatter(FormatStrFormatter('%.0f'))
+    ax.legend(['updated: '+time_array[-1].strftime('%d/%m %H:%M')],loc='best')
     # ax.legend(['Waze'])
     plt.title('Commute: '+format(state_array[-1],'.0f')+' min'+'\n '+'Route: '+last_attr['route'],fontsize=28)
     # plt.title(r'{\fontsize{30pt}{3em}\selectfont{}{Time:'+format(state_array[-1],'.0f')+'\n}{\fontsize{18pt}{3em}\selectfont{}(September 16 - October 30, 2012)}')
@@ -150,6 +159,31 @@ elif display_option==1:
     plt.gcf().autofmt_xdate()
 
     fig.savefig('plot.png',bbox_inches='tight',dpi=dpi)
+
+elif display_option==3:
+    str_qtd=wikiquote.quote_of_the_day()
+
+    white=255
+    image=PIL.Image.new('L',(width_displ,height_displ) , color=white)
+    draw = ImageDraw.Draw(image)
+
+    fList = fontman.findSystemFonts(fontpaths=None, fontext='ttf')
+    targetFont = []
+    searchFont='DejaVuSerif'
+    for row in fList:
+        try:
+            if searchFont in row:
+                targetFont.append(row)
+        except TypeError:
+            pass
+    font = ImageFont.truetype(targetFont[0], 16)
+
+    margin = offset = 40
+    for line in textwrap.wrap(str_qtd[0], width=60):
+        draw.text((margin, offset), line, font=font)
+        offset += font.getsize(line)[1]
+    wrapper = textwrap.TextWrapper(width=50)
+    image.save('test.png')
 
 # create BMP option
 cp = subprocess.run(["convert plot.png -resize 640x384 -type GrayScale -depth 8 black2.bmp"],shell=True,stdout=subprocess.PIPE)

@@ -12,7 +12,11 @@ homeassistant:
   time_zone: Europe/Brussels
   # Customization file
   # customize: !include customize.yaml
-
+  auth_providers:
+    - type: trusted_networks
+      trusted_networks:
+        - 192.168.0.0/24
+      allow_bypass_login: true
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
@@ -31,6 +35,12 @@ lovelace:
 # Discover some devices automatically
 discovery:
 
+zone:
+  - name: Work
+    latitude: !secret work_gps_lat
+    longitude: !secret work_gps_long
+    icon: mdi:worker
+
 media_player:
   - platform: yamaha_musiccast
     host: 192.168.0.163
@@ -42,6 +52,15 @@ mqtt:
   discovery: true
 
 sensor:
+  - platform: time_date
+    display_options:
+      - 'date_time_iso'
+  - platform: waze_travel_time
+    name: "commute"
+    origin: zone.home
+    destination: zone.work
+    region: 'EU'
+    vehicle_type: car
   - platform: yr
     name: weather_yr
     forecast: 24
@@ -110,12 +129,14 @@ sensor:
       - symbol
 
 shell_command:
-  set_temp_high: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_day.state }}'
-  set_temp_low: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_night.state }}'
-  read_ebus: python3.7 /home/stijn/.homeassistant/python_scripts/read_ebus.py
-  set_temp_living: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider1.state }}'
-  set_time: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_time_normal.py'
-  set_heater: 'python3.7 /home/stijn/.homeassistant/python_scripts/set_heater.py'
+  set_temp_high: 'python3 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_day.state }}'
+  set_temp_low: 'python3 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_night.state }}'
+  read_ebus: python3 /home/stijn/.homeassistant/python_scripts/read_ebus.py
+  set_temp_living: 'python3 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider1.state }}'
+  set_time: 'python3 /home/stijn/.homeassistant/python_scripts/set_time_normal.py'
+  set_heater: 'python3 /home/stijn/.homeassistant/python_scripts/set_heater.py'
+  take_screenshot: 'python3 /home/homeassistant/.homeassistant/python_scripts/db_plotter.py -s {{ states.input_number.dummy_epaper.state }}'
+  # take_screenshot: 'python3 /home/homeassistant/.homeassistant/python_scripts/db_plotter.py -s 2'
 
 history_graph:
   gr1:
@@ -172,6 +193,12 @@ input_number:
     max: 25
     step: 0.25
     unit_of_measurement: "°C"
+  dummy_epaper:
+    name: dummy epaper
+    initial: 2
+    min: 1
+    max: 3
+    step: 1
 
 switch:
   - platform: mqtt
@@ -216,6 +243,22 @@ automation theme_selector:
       service: frontend.set_theme
       data:
         name: slate
+
+automation epaper:
+  - alias: epaper
+    trigger:
+      platform: time_pattern
+      minutes: '/5'
+    action:
+      - service: input_number.set_value
+        data_template:
+          entity_id: input_number.dummy_epaper
+          value: >
+            {% if now().hour < 8 %} 2
+            {% else %} 1 {% endif %}
+      - delay: '00:01:00'
+      - service: shell_command.take_screenshot
+
 
 automation bathroom_heater:
   - alias: handdoekdroger automatisch
@@ -409,7 +452,7 @@ device_tracker:
 
 
 recorder:
- purge_keep_days: 50
+ purge_keep_days: 15
  exclude:
    domains:
      - automation
