@@ -142,13 +142,17 @@ elif display_option==1:
     time_array= np.array([])
     state_array=np.array([])
     for i in readable_json:
-        time_update=datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
-        time_array=np.append(time_array, time_update.astimezone(tz))
-        state_array=np.append(state_array,float(i['state']))
-
+        try:
+            state_array=np.append(state_array,float(i['state']))
+            time_update=datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
+            time_array=np.append(time_array, time_update.astimezone(tz))
+        except:
+            print("uknown state")
     fig=plt.figure(num=None, figsize=(int(width_displ/dpi), int(height_displ/dpi)), dpi=dpi, facecolor='w', edgecolor='k')
     plt.plot(time_array,state_array,linewidth=7.0,c='k')
     plt.ylabel('Watt',fontsize=20)
+    ax = plt.gca()
+    ax.legend(['updated: '+time_array[-1].strftime('%d/%m %H:%M')],loc='best')
     plt.xticks(fontsize=18)
     plt.yticks(fontsize=18)
     ax = plt.gca()
