@@ -112,6 +112,8 @@ views:
         title: humidity zolder
         entities:
           - sensor.humidity_zolder
+          - sensor.humidity_bathroom
+          - sensor.temperature_bathroom
   - title: media
     icon: mdi:television-classic
     cards:
