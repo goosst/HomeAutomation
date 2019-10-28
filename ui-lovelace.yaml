@@ -23,6 +23,12 @@ views:
   - title: Temperatures
     icon: mdi:thermometer
     cards:
+      - type: entities
+        title: Temperatures
+        entities:
+          - sensor.temperature_living
+          - sensor.temperature_bathroom
+          - sensor.temperature_zolder
       - type: history-graph
         title: 'living temperature'
         entities:
@@ -36,6 +42,12 @@ views:
           - sensor.temperature_zolder
         hours_to_show: 72
         refresh_interval: 600
+      - type: history-graph
+        title: 'temperature bathroom'
+        entities:
+          - sensor.temperature_bathroom
+        hours_to_show: 72
+        refresh_interval: 600
   - title: Heating
     icon: mdi:radiator
     cards:
@@ -46,6 +58,7 @@ views:
           - input_number.slider_day
           - input_number.slider_night
           - input_number.slider1
+          - sensor.temperature_flow_radiator
       - type: entities
         title: bathroom
         entities:
@@ -113,7 +126,6 @@ views:
         entities:
           - sensor.humidity_zolder
           - sensor.humidity_bathroom
-          - sensor.temperature_bathroom
   - title: media
     icon: mdi:television-classic
     cards:
