@@ -117,6 +117,7 @@ views:
         title: aanwezigheid
         entities:
           - device_tracker.7c_7d_3d_ba_ef_be
+          - device_tracker.motorolla_stijn
           - binary_sensor.alarm_state
   - title: humidity
     icon: mdi:water-percent

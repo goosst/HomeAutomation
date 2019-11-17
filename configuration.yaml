@@ -17,6 +17,7 @@ homeassistant:
       trusted_networks:
         - 192.168.0.0/24
       allow_bypass_login: true
+    - type: homeassistant
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
@@ -141,14 +142,14 @@ sensor:
       - symbol
 
 shell_command:
-  set_temp_high: 'python3 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_day.state }}'
-  set_temp_low: 'python3 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_night.state }}'
-  read_ebus: 'python3 /home/stijn/.homeassistant/python_scripts/read_ebus.py'
-  set_temp_living: 'python3 /home/stijn/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider1.state }}'
-  set_time: 'python3 /home/stijn/.homeassistant/python_scripts/set_time_normal.py'
-  set_heater: 'python3 /home/stijn/.homeassistant/python_scripts/set_heater.py'
-  take_screenshot: 'python3 /home/stijn/.homeassistant/python_scripts/db_plotter.py -s {{ states.input_number.dummy_epaper.state }}'
-  start_ebus: 'python3 /home/stijn/.homeassistant/python_scripts/start_ebus.py'
+  set_temp_high: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_day.state }}'
+  set_temp_low: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_night.state }}'
+  read_ebus: 'python3 /home/homeassistant/.homeassistant/python_scripts/read_ebus.py'
+  set_temp_living: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider1.state }}'
+  set_time: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_time_normal.py'
+  set_heater: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_heater.py'
+  take_screenshot: 'python3 /home/homeassistant/.homeassistant/python_scripts/db_plotter.py -s {{ states.input_number.dummy_epaper.state }}'
+  # start_ebus: 'python3 /home/homeassistant/.homeassistant/python_scripts/start_ebus.py'
 
 history_graph:
   gr1:
@@ -170,18 +171,18 @@ history_graph:
       - sensor.robot_power
     hours_to_show: 72
     refresh: 300
-  gr4:
-    name: temperature zolder
-    entities:
-      - sensor.temperature_zolder
-    hours_to_show: 120
-    refresh: 300
-  gr5:
-    name: vochtigheid zolder
-    entities:
-      - sensor.humidity_zolder
-    hours_to_show: 72
-    refresh: 300
+  # gr4:
+  #   name: temperature zolder
+  #   entities:
+  #     - sensor.temperature_zolder
+  #   hours_to_show: 120
+  #   refresh: 300
+  # gr5:
+  #   name: vochtigheid zolder
+  #   entities:
+  #     - sensor.humidity_zolder
+  #   hours_to_show: 72
+  #   refresh: 300
 
 input_number:
   slider1:
@@ -282,7 +283,7 @@ automation epaper_two:
           entity_id: input_number.dummy_epaper
           value: >
             {% if now().hour < 8 %} 5
-            {% elif 8 <= now().hour < 20 %} 4
+            {% elif 8 <= now().hour < 20 %} 5
             {% else %} 5 {% endif %}
       - delay: '00:01:00'
       - service: shell_command.take_screenshot
@@ -324,22 +325,25 @@ automation alarm:
       from: 'off' #1 means alarm is off (somebody home)
       to: 'on'
     action:
-      service: shell_command.set_temp_low
-      data:
-        message: "Stijn left house: heating"
+      - service: shell_command.set_temp_low
+        data:
+          message: "Leaving home: heating off"
+      - delay: '00:01:00'
+      - service: shell_command.read_ebus
 
 automation alarm2:
   - alias: heating on when turning alarm off
     trigger:
       platform: state
       entity_id: binary_sensor.alarm_state
-      from: 'on' #1 means alarm is off
+      from: 'on'
       to: 'off'
     action:
-      service: shell_command.set_temp_high
-      data:
-        message: "Stijn left house: heating"
-
+      - service: shell_command.set_temp_high
+        data:
+          message: "Coming home: heating on"
+      - delay: '00:01:00'
+      - service: shell_command.read_ebus
 # automation leaving_house:
 #   alias: set temp low when leaving house
 #   trigger:
@@ -461,7 +465,7 @@ automation ebusreading:
   alias: read ebus
   trigger:
     platform: time_pattern
-    minutes: '/7'
+    minutes: '/5'
   action:
     service: shell_command.read_ebus
     data:
@@ -481,8 +485,8 @@ device_tracker:
 recorder:
  purge_keep_days: 15
  exclude:
-   domains:
-     - automation
+   # domains:
+   #   - automation
    entities:
      - sensor.weather_yr_wind_speed
      - sensor.weather_yr_wind_direction
