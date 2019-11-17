@@ -1,3 +1,5 @@
+# turns electric heater on and off from home assistant
+# 17 nov 19: differentiates between manually turned on and automatically turned on, to decide when to turn heater off
 import subprocess
 import datetime
 # from ilock import ILock
@@ -135,10 +137,3 @@ if manual_heating==False:
     msg1="mosquitto_pub -h localhost -t cmnd/sonoff/Power1 -u stijn -P mqtt -m "
     cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
 #print(msg2)
-
-
-# check status of switch
-headers = {
-    'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI3YmNjY2FhNTBlNDM0YjFhOThiMWE4M2Q3ZjU5Zjg5NyIsImlhdCI6MTU3Mjc3NjI0MywiZXhwIjoxODg4MTM2MjQzfQ.tMw-7qFAyqNkGOBXXcg3hqmC1R-HAxf2agZ9d-i3Saw',
-    'content-type': 'application/json',
-}
