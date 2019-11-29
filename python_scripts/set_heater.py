@@ -1,5 +1,6 @@
 # turns electric heater on and off from home assistant
 # 17 nov 19: differentiates between manually turned on and automatically turned on, to decide when to turn heater off
+# done by setting a dummy variable through the rest api
 import subprocess
 import datetime
 # from ilock import ILock
@@ -83,38 +84,57 @@ state_last_switch=state_array_switch[-1]
 
 # was the heater turned on manually?
 entity_id='input_number.dummy_heater'
-url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
-response = get(url, headers=headers)
-temp=response.text
-temp=temp[1:len(temp)-1]
-readable_json=json.loads(temp)
+try:
+    url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
+    response = get(url, headers=headers)
+    temp=response.text
+    temp=temp[1:len(temp)-1]
+    readable_json=json.loads(temp)
 
-time_array_dummyheater= np.array([])
-state_array_dummyheater=np.array([])
-for i in readable_json:
-    try:
-        state_array_dummyheater=np.append(state_array_dummyheater,i['state'])
-        time_update=datetime.datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
-        time_array_dummyheater=np.append(time_array_dummyheater, time_update.astimezone(tz))
-    except:
-        print("unknown state")
+    time_array_dummyheater= np.array([])
+    state_array_dummyheater=np.array([])
+    for i in readable_json:
+        try:
+            state_array_dummyheater=np.append(state_array_dummyheater,i['state'])
+            time_update=datetime.datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
+            time_array_dummyheater=np.append(time_array_dummyheater, time_update.astimezone(tz))
+        except:
+            print("unknown state")
 
-# last timestap
-time_last_dummyheater=time_array_dummyheater[-1]
-state_last_dummyheater=state_array_dummyheater[-1]
+    # last timestap
+    time_last_dummyheater=time_array_dummyheater[-1]
+    state_last_dummyheater=state_array_dummyheater[-1]
 
-if (state_last_dummyheater!='auto_on') and (state_last_switch=='on'):
-    manual_heating=True
-else:
+    if (state_last_dummyheater!='auto_on') and (state_last_switch=='on'):
+        manual_heating=True
+    else:
+        manual_heating=False
+    print(manual_heating)
+except:
+    # dummy variable was not created before, should be made more robust instead of try except construction
+    url='http://'+address_hass+':8123/api/states/input_number.dummy_heater'
+    payload='{"state": "auto_off"}'
+    post(url,data=payload,headers=headers)
     manual_heating=False
-print(manual_heating)
-
 
 #turn on heater if temp is too low in the morning
-time_on=datetime.time( 5,20,0 )
-time_off=datetime.time( 5,59,0 ) #nachttarrief
+
+#very simplistic formula
+heating_time=(21-temp_last)*6 #minutes to turn on heating
+if heating_time>60:
+    heating_time=60
+
+heating_time=datetime.timedelta(minutes=heating_time)
+
+# time_on=datetime.time( 5,20,0 )
+# time_on=datetime.datetime.combine(now.date(),time_on)
 now=datetime.datetime.now().astimezone(tz)
 
+time_off=datetime.time( 5,59,0 ) #nachttarrief
+time_off=datetime.datetime.combine(now.date(),time_off)
+time_off=time_off.astimezone(tz)
+
+time_on=time_off-heating_time
 
 if time_off>time_on:
 	offtime_later_ontime=True
@@ -122,11 +142,11 @@ else:
 	offtime_later_ontime=False
 
 url='http://'+address_hass+':8123/api/states/input_number.dummy_heater'
-if now.time()>time_on and now.time()<time_off and offtime_later_ontime and temp_last<17:
+if now>time_on and now<time_off and offtime_later_ontime and temp_last<17:
     msg2="ON" # communicate to hass heater was turned on automatically
     payload='{"state": "auto_on"}'
     post(url,data=payload,headers=headers)
-elif now.time()>time_off and offtime_later_ontime or temp_last>20:
+elif now>time_off and offtime_later_ontime or temp_last>20:
     msg2="OFF"
     payload='{"state": "auto_off"}'
     post(url,data=payload,headers=headers)

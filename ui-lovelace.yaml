@@ -1,25 +1,45 @@
 title: My Awesome Home
 views:
     # View tab title.
-  - title: Weather
-    icon: mdi:weather-sunny
+  - title: Heating
+    icon: mdi:radiator
     cards:
-        # The markdown card will render markdown text.
       - type: entities
-        title: Weersvoorspelling
+        title: temperaturen
         entities:
-          - sensor.br_detailed_condition
-          - sensor.br_ground_temperature
-          - sensor.br_temperature
-          - sensor.br_precipitation
-          - sensor.br_precipitation_forecast_average
-          - sensor.br_rain_1d
-          - sensor.br_wind_speed
-          - sensor.br_wind_direction
-      - type: iframe
-        url: https://weerdata.weerslag.nl/image/1.0/?size=ani-forecast-550x550&type=Freecontent&v=14487341
-        aspect_ratio: 140%
-        title: Buien
+          - input_boolean.turn_heating_on
+          - sensor.temperature_setpoint_living
+          - input_number.slider_day
+          - input_number.slider_night
+          - input_number.slider1
+          - sensor.temperature_flow_radiator
+      - type: entities
+        title: bathroom
+        entities:
+          - binary_sensor.heater_status
+          - switch.handdoekdroger_control
+          - switch.ventilator_control
+      - type: entities
+        title: automations
+        entities:
+          - automation.handdoekdroger_automatisch
+          - automation.start_ventilator_radiator
+          - automation.stop_ventilator_radiator
+          - automation.heating_off_when_turning_alarm_on
+          - automation.heating_on_when_turning_alarm_off
+          - automation.read_ebus
+  #        - automation.set_temp_high_when_being_home_weekend
+  #        - automation.set_temp_high_when_being_home_workday
+          - automation.set_temp_low_when_leaving_house
+          - automation.wakup_turn_heating_up_weekday
+          - automation.wakup_turn_heating_up_saturday
+          - automation.wakup_turn_heating_up_sunday
+      - type: history-graph
+        title: 'heater setpunt'
+        entities:
+          - sensor.temperature_flow_radiator
+        hours_to_show: 72
+        refresh_interval: 600
   - title: Temperatures
     icon: mdi:thermometer
     cards:
@@ -48,41 +68,25 @@ views:
           - sensor.temperature_bathroom
         hours_to_show: 72
         refresh_interval: 600
-  - title: Heating
-    icon: mdi:radiator
+  - title: Weather
+    icon: mdi:weather-sunny
     cards:
+        # The markdown card will render markdown text.
       - type: entities
-        title: temperaturen
+        title: Weersvoorspelling
         entities:
-          - sensor.temperature_setpoint_living
-          - input_number.slider_day
-          - input_number.slider_night
-          - input_number.slider1
-          - sensor.temperature_flow_radiator
-      - type: entities
-        title: bathroom
-        entities:
-          - binary_sensor.heater_status
-          - switch.handdoekdroger_control
-          - automation.handdoekdroger_automatisch
-      - type: entities
-        title: automations
-        entities:
-          - automation.heating_off_when_turning_alarm_on
-          - automation.heating_on_when_turning_alarm_off
-          - automation.read_ebus
-  #        - automation.set_temp_high_when_being_home_weekend
-  #        - automation.set_temp_high_when_being_home_workday
-          - automation.set_temp_low_when_leaving_house
-          - automation.wakup_turn_heating_up_weekday
-          - automation.wakup_turn_heating_up_saturday
-          - automation.wakup_turn_heating_up_sunday
-      - type: history-graph
-        title: 'heater setpunt'
-        entities:
-          - sensor.temperature_flow_radiator
-        hours_to_show: 72
-        refresh_interval: 600
+          - sensor.br_detailed_condition
+          - sensor.br_ground_temperature
+          - sensor.br_temperature
+          - sensor.br_precipitation
+          - sensor.br_precipitation_forecast_average
+          - sensor.br_rain_1d
+          - sensor.br_wind_speed
+          - sensor.br_wind_direction
+      - type: iframe
+        url: https://weerdata.weerslag.nl/image/1.0/?size=ani-forecast-550x550&type=Freecontent&v=14487341
+        aspect_ratio: 140%
+        title: Buien
   - title: gras robot
     icon: mdi:ladybug
     cards:

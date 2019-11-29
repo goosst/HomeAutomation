@@ -188,21 +188,21 @@ input_number:
   slider1:
     name: Set Now
     initial: 21
-    min: 5
-    max: 30
+    min: 9
+    max: 25
     step: 0.25
     unit_of_measurement: "°C"
   slider_night:
     name: Temp Night
     initial: 15
-    min: 5
-    max: 23
+    min: 9
+    max: 25
     step: 0.25
     unit_of_measurement: "°C"
   slider_day:
     name: Temp Day
     initial: 21
-    min: 5
+    min: 9
     max: 25
     step: 0.25
     unit_of_measurement: "°C"
@@ -213,6 +213,11 @@ input_number:
     max: 7
     step: 1
 
+input_boolean:
+  turn_heating_on:
+    name: Heating Living Day
+    initial: off
+
 switch:
   - platform: mqtt
     name: "handdoekdroger control"
@@ -222,6 +227,11 @@ switch:
   - platform: mqtt
     name: "robomow control"
     command_topic: cmnd/sonoffPowR2/Power1
+    payload_on: "ON"
+    payload_off: "OFF"
+  - platform: mqtt
+    name: "ventilator control"
+    command_topic: cmnd/sonoff_vent/Power1
     payload_on: "ON"
     payload_off: "OFF"
 
@@ -247,6 +257,57 @@ binary_sensor:
     payload_off: 1
     #payload_not_available: "alarm offline"
 
+automation turn_heating_on_living:
+  - alias: 'turn heating living on'
+    trigger:
+      platform: state
+      entity_id: input_boolean.turn_heating_on
+      from: 'off'
+      to: 'on'
+    action:
+      - service: shell_command.set_temp_high
+        data:
+          message: "Turned living heating on"
+      - delay: '00:01:00'
+      - service: shell_command.read_ebus
+
+automation turn_heating_off_living:
+  - alias: 'turn heating living off'
+    trigger:
+      platform: state
+      entity_id: input_boolean.turn_heating_on
+      from: 'on'
+      to: 'off'
+    action:
+      - service: shell_command.set_temp_low
+        data:
+          message: "Turned living heating off"
+      - delay: '00:01:00'
+      - service: shell_command.read_ebus
+
+automation turn_on_ventilator:
+  - alias: 'start ventilator radiator'
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.temperature_flow_radiator
+      above: 89
+    action:
+      - delay: '00:10:00'
+      - service: switch.turn_on
+        data:
+          entity_id: switch.ventilator_control
+
+automation turn_off_ventilator:
+  - alias: 'stop ventilator radiator'
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.temperature_flow_radiator
+      below: 85
+    action:
+      - service: switch.turn_off
+        data:
+          entity_id: switch.ventilator_control
+
 automation theme_selector:
   - alias: 'Set theme at startup'
     trigger:
@@ -267,7 +328,7 @@ automation epaper:
         data_template:
           entity_id: input_number.dummy_epaper
           value: >
-            {% if now().hour < 8 %} 2
+            {% if now().hour < 9 %} 2
             {% else %} 1 {% endif %}
       - delay: '00:01:00'
       - service: shell_command.take_screenshot
@@ -316,6 +377,20 @@ automation slider:
       entity_id: input_number.slider1
     action:
       service: shell_command.set_temp_living
+
+automation clock:
+  - alias: heating on x minutes before phone alarm
+    trigger:
+      - platform: time_pattern
+        minutes: /1
+        seconds: 0
+    condition:
+    - condition: template
+      value_template: '{{ (((as_timestamp(now()) | int) + 30*60) | timestamp_custom("%Y-%m-%d %H:%M:00")) == states.sensor.next_alarm.state }}'
+    action:
+    - service: shell_command.set_temp_high
+      data:
+        message: "Phone alarm - heating on"
 
 automation alarm:
   - alias: heating off when turning alarm on
@@ -504,6 +579,10 @@ recorder:
      - weather.home
      - zone.home
      - sun.sun
+     - sensor.date_time_iso
+     - media_player.kodi_libreelec_local
+     - media_player.living_main
+     - input_number.dummy_epaper
 #group: !include groups.yaml
 #automation: !include automations.yaml
 #script: !include scripts.yaml
