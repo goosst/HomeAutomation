@@ -48,6 +48,7 @@ views:
         entities:
           - sensor.temperature_living
           - sensor.temperature_bathroom
+          - sensor.temperature_slaapkamer
           - sensor.temperature_zolder
       - type: history-graph
         title: 'living temperature'
@@ -57,15 +58,16 @@ views:
         hours_to_show: 72
         refresh_interval: 600
       - type: history-graph
-        title: 'temperature zolder'
+        title: 'temp kamers'
         entities:
-          - sensor.temperature_zolder
+          - sensor.temperature_bathroom
+          - sensor.temperature_slaapkamer
         hours_to_show: 72
         refresh_interval: 600
       - type: history-graph
-        title: 'temperature bathroom'
+        title: 'temp zolder'
         entities:
-          - sensor.temperature_bathroom
+          - sensor.temperature_zolder
         hours_to_show: 72
         refresh_interval: 600
   - title: Weather
@@ -127,10 +129,11 @@ views:
     icon: mdi:water-percent
     cards:
       - type: entities
-        title: humidity zolder
+        title: humidity
         entities:
           - sensor.humidity_zolder
           - sensor.humidity_bathroom
+          - sensor.humidity_slaapkamer
   - title: media
     icon: mdi:television-classic
     cards:

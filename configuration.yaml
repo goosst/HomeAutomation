@@ -86,13 +86,13 @@ sensor:
   - platform: mqtt
     name: "Temperature zolder"
     state_topic: /sensor/ESP8266-452118/data/temperature
-    expire_after: 60
+    expire_after: 240
     payload_not_available: "temp zolder offline"
     unit_of_measurement: "°C"
   - platform: mqtt
     name: "Humidity zolder"
     state_topic: /sensor/ESP8266-452118/data/humidity
-    expire_after: 60
+    expire_after: 240
     payload_not_available: "humidity zolder offline"
     unit_of_measurement: "%"
   - platform: mqtt
@@ -116,15 +116,31 @@ sensor:
     value_template: "{{ value_json['ENERGY'].TotalStartTime }}"
   - platform: mqtt
     name: "Temperature bathroom"
-    state_topic: /sensor/ESP8266-10064964/data/temperature
-    expire_after: 60
+    state_topic: tele/wemos_d1_bath/SENSOR
+    value_template: "{{ value_json['SHT3X-0x45'].Temperature }}"
+    expire_after: 400
     payload_not_available: "temp bathroom offline"
     unit_of_measurement: "°C"
   - platform: mqtt
     name: "Humidity bathroom"
-    state_topic: /sensor/ESP8266-10064964/data/humidity
-    expire_after: 60
+    state_topic: tele/wemos_d1_bath/SENSOR
+    value_template: "{{ value_json['SHT3X-0x45'].Humidity }}"
+    expire_after: 400
     payload_not_available: "humidity bathroom offline"
+    unit_of_measurement: "%"
+  - platform: mqtt
+    name: "Temperature slaapkamer"
+    state_topic: tele/wemos_d1/SENSOR
+    value_template: "{{ value_json['SHT3X-0x45'].Temperature }}"
+    expire_after: 400
+    payload_not_available: "temp slaapkamer offline"
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Humidity slaapkamer"
+    state_topic: tele/wemos_d1/SENSOR
+    value_template: "{{ value_json['SHT3X-0x45'].Humidity }}"
+    expire_after: 400
+    payload_not_available: "humidity slaapkamer offline"
     unit_of_measurement: "%"
   - platform: buienradar
     monitored_conditions:
@@ -140,6 +156,18 @@ sensor:
       - precipitation_forecast_average
       - irradiance
       - symbol
+# - platform: mqtt
+#   name: "Temperature slaapkamer"
+#   state_topic: /sensor/ESP8266-1095942/data/temperature
+#   expire_after: 240
+#   payload_not_available: "temp slaapkamer offline"
+#   unit_of_measurement: "°C"
+# - platform: mqtt
+#   name: "Humidity slaapkamer"
+#   state_topic: /sensor/ESP8266-1095942/data/humidity
+#   expire_after: 240
+#   payload_not_available: "humidity slaapkamer offline"
+#   unit_of_measurement: "%"
 
 shell_command:
   set_temp_high: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temperature.py -t {{ states.input_number.slider_day.state }}'
@@ -353,7 +381,7 @@ automation bathroom_heater:
   - alias: handdoekdroger automatisch
     trigger:
       platform: time_pattern
-      minutes: '/6'
+      minutes: '/5'
     condition:
       condition: and
       conditions:
@@ -364,9 +392,6 @@ automation bathroom_heater:
             - wed
             - thu
             - fri
-        - condition: state #in case it was turned on from the bathroom
-          entity_id: switch.handdoekdroger_control
-          state: 'off'
     action:
       service: shell_command.set_heater #time to turn on is defined in python script
 
@@ -480,15 +505,23 @@ automation alarm2:
 #     data:
 #       message: "Stijn is home: heating high"
 
-# automation sleep:
-#   alias: sleep, turn heating down
-#   trigger:
-#     platform: time
-#     at: '22:35:00'
-#   action:
-#     service: shell_command.set_temp_low
-#     data:
-#       message: "sleeping, heating low"
+automation sleep:
+  alias: sleep, turn heating down
+  trigger:
+    platform: time
+    at: '22:10:00'
+  condition:
+    - condition: time
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - sun
+  action:
+    service: shell_command.set_temp_low
+    data:
+      message: "sleeping, heating low"
 
 automation wakeup_week:
   alias: wakup, turn heating up weekday
