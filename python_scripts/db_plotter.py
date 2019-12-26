@@ -25,25 +25,15 @@ from scipy import interpolate
 path="/home/homeassistant/.homeassistant/www"
 os.chdir(path)
 
+# import long-live token
+import headerfiles as parameters
+headers=parameters.headers
+address_hass=parameters.address_hass
 
 # e-paper display size
 width_displ=640
 height_displ=384
 dpi=100;
-
-
-#laptop
-headers = {
-    'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI3YmNjY2FhNTBlNDM0YjFhOThiMWE4M2Q3ZjU5Zjg5NyIsImlhdCI6MTU3Mjc3NjI0MywiZXhwIjoxODg4MTM2MjQzfQ.tMw-7qFAyqNkGOBXXcg3hqmC1R-HAxf2agZ9d-i3Saw',
-    'content-type': 'application/json',
-}
-
-#raspberry
-#headers = {
-#    'Authorization': 'Bearer #eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI3NzYxN2Q4YjM0ODA0MTAwYjgyYWQ1ZmE5NjM0NjU2NiIsImlhdCI6MTU2ODc0NDQwMiwiZXhwIjoxODg0MTA0NDAyfQ.XB6RrMAmHPsnXnjsnOPnMjIs0_hSWq-#visg1NYcXK0w',
-#    'content-type': 'application/json',
-#}
-address_hass='192.168.0.205'
 
 # check if passed options are valid
 try:
