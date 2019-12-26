@@ -250,18 +250,40 @@ switch:
   - platform: mqtt
     name: "handdoekdroger control"
     command_topic: cmnd/sonoff/Power1
+    state_topic: stat/sonoff/POWER
     payload_on: "ON"
     payload_off: "OFF"
   - platform: mqtt
     name: "robomow control"
     command_topic: cmnd/sonoffPowR2/Power1
+    state_topic: stat/sonoffPowR2/POWER
     payload_on: "ON"
     payload_off: "OFF"
   - platform: mqtt
     name: "ventilator control"
     command_topic: cmnd/sonoff_vent/Power1
+    state_topic: stat/sonoff_vent/POWER
     payload_on: "ON"
     payload_off: "OFF"
+  - platform: mqtt
+    name: "S26 control"
+    command_topic: cmnd/sonoff_s26/POWER
+    state_topic: stat/sonoff_s26/POWER
+    payload_on: "ON"
+    payload_off: "OFF"
+    availability_topic: "tele/sonoff_s26/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "S20 control"
+    command_topic: cmnd/s20/Power1
+    state_topic: stat/s20/POWER
+    payload_on: "ON"
+    payload_off: "OFF"
+    availability_topic: "tele/s20/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+
 
 binary_sensor:
   - platform: mqtt

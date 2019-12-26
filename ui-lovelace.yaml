@@ -5,20 +5,21 @@ views:
     icon: mdi:radiator
     cards:
       - type: entities
-        title: temperaturen
+        title: Living
         entities:
-          - input_boolean.turn_heating_on
           - sensor.temperature_setpoint_living
+          - sensor.temperature_living
+          - input_boolean.turn_heating_on
+          - switch.ventilator_control
           - input_number.slider_day
           - input_number.slider_night
           - input_number.slider1
           - sensor.temperature_flow_radiator
       - type: entities
-        title: bathroom
+        title: Badkamer
         entities:
           - binary_sensor.heater_status
           - switch.handdoekdroger_control
-          - switch.ventilator_control
       - type: entities
         title: automations
         entities:
@@ -116,6 +117,14 @@ views:
           - sensor.robot_total_energy
         hours_to_show: 72
         refresh_interval: 600
+  - title: switches
+    icon: mdi:toggle-switch
+    cards:
+      - type: entities
+        title: schakelaars
+        entities:
+          - switch.s20_control
+          - switch.s26_control
   - title: Presence
     icon: mdi:human-male-female
     cards:
