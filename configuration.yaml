@@ -44,7 +44,7 @@ zone:
 
 media_player:
   - platform: yamaha_musiccast
-    host: 192.168.0.163
+    host: 192.168.0.164
 
 mqtt:
   broker: 127.0.0.1
@@ -118,28 +118,28 @@ sensor:
     name: "Temperature bathroom"
     state_topic: tele/wemos_d1_bath/SENSOR
     value_template: "{{ value_json['SHT3X-0x45'].Temperature }}"
-    expire_after: 400
+    expire_after: 800
     payload_not_available: "temp bathroom offline"
     unit_of_measurement: "°C"
   - platform: mqtt
     name: "Humidity bathroom"
     state_topic: tele/wemos_d1_bath/SENSOR
     value_template: "{{ value_json['SHT3X-0x45'].Humidity }}"
-    expire_after: 400
+    expire_after: 800
     payload_not_available: "humidity bathroom offline"
     unit_of_measurement: "%"
   - platform: mqtt
     name: "Temperature slaapkamer"
     state_topic: tele/wemos_d1/SENSOR
     value_template: "{{ value_json['SHT3X-0x45'].Temperature }}"
-    expire_after: 400
+    expire_after: 800
     payload_not_available: "temp slaapkamer offline"
     unit_of_measurement: "°C"
   - platform: mqtt
     name: "Humidity slaapkamer"
     state_topic: tele/wemos_d1/SENSOR
     value_template: "{{ value_json['SHT3X-0x45'].Humidity }}"
-    expire_after: 400
+    expire_after: 800
     payload_not_available: "humidity slaapkamer offline"
     unit_of_measurement: "%"
   - platform: buienradar
@@ -245,6 +245,9 @@ input_boolean:
   turn_heating_on:
     name: Heating Living Day
     initial: off
+  ventilator_radiator:
+    name: Dummy ventilator radiator
+    initial: off
 
 switch:
   - platform: mqtt
@@ -283,6 +286,15 @@ switch:
     availability_topic: "tele/s20/LWT"
     payload_available: "Online"
     payload_not_available: "Offline"
+  - platform: mqtt
+    name: "verlichting terras"
+    command_topic: cmnd/tuinverlichting/Power1
+    state_topic: stat/tuinverlichting/POWER
+    payload_on: "ON"
+    payload_off: "OFF"
+    availability_topic: "tele/tuinverlichting/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
 
 
 binary_sensor:
@@ -306,6 +318,26 @@ binary_sensor:
     payload_on: 0
     payload_off: 1
     #payload_not_available: "alarm offline"
+
+automation turnonlightatsunset:
+  - alias: 'turn S26 on at sunset'
+    trigger:
+      platform: sun
+      event: sunset
+    action:
+      - service: switch.turn_on
+        data:
+          entity_id: switch.s26_control
+
+automation turnofflightatsunrise:
+  - alias: 'turn S26 off at sunrise'
+    trigger:
+      platform: sun
+      event: sunrise
+    action:
+      - service: switch.turn_off
+        data:
+          entity_id: switch.s26_control
 
 automation turn_heating_on_living:
   - alias: 'turn heating living on'
@@ -335,12 +367,35 @@ automation turn_heating_off_living:
       - delay: '00:01:00'
       - service: shell_command.read_ebus
 
-automation turn_on_ventilator:
-  - alias: 'start ventilator radiator'
+automation turn_on_dummy_ventilator:
+  - alias: 'dummy ventilator variable on'
     trigger:
       platform: numeric_state
       entity_id: sensor.temperature_flow_radiator
       above: 89
+    action:
+       service: input_boolean.turn_on
+       data:
+         entity_id: input_boolean.ventilator_radiator
+
+automation turn_off_dummy_ventilator:
+  - alias: 'dummy ventilator variable off'
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.temperature_flow_radiator
+      below: 85
+    action:
+       service: input_boolean.turn_off
+       data:
+         entity_id: input_boolean.ventilator_radiator
+
+automation turn_on_ventilator:
+  - alias: 'start ventilator radiator'
+    trigger:
+      platform: state
+      entity_id: input_boolean.ventilator_radiator
+      from: 'off'
+      to: 'on'
     action:
       - delay: '00:10:00'
       - service: switch.turn_on
@@ -350,9 +405,10 @@ automation turn_on_ventilator:
 automation turn_off_ventilator:
   - alias: 'stop ventilator radiator'
     trigger:
-      platform: numeric_state
-      entity_id: sensor.temperature_flow_radiator
-      below: 85
+      platform: state
+      entity_id: input_boolean.ventilator_radiator
+      from: 'on'
+      to: 'off'
     action:
       - service: switch.turn_off
         data:
@@ -433,11 +489,13 @@ automation clock:
         seconds: 0
     condition:
     - condition: template
-      value_template: '{{ (((as_timestamp(now()) | int) + 30*60) | timestamp_custom("%Y-%m-%d %H:%M:00")) == states.sensor.next_alarm.state }}'
+      value_template: '{{ (((as_timestamp(now()) | int) + 55*60) | timestamp_custom("%Y-%m-%d %H:%M:00")) == states.sensor.next_alarm.state }}'
     action:
     - service: shell_command.set_temp_high
       data:
         message: "Phone alarm - heating on"
+    - delay: '00:35:00'
+    - service: shell_command.set_temp_low
 
 automation alarm:
   - alias: heating off when turning alarm on

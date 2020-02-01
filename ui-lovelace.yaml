@@ -18,7 +18,6 @@ views:
       - type: entities
         title: Badkamer
         entities:
-          - binary_sensor.heater_status
           - switch.handdoekdroger_control
       - type: entities
         title: automations
@@ -71,6 +70,20 @@ views:
           - sensor.temperature_zolder
         hours_to_show: 72
         refresh_interval: 600
+  - title: lights
+    icon: mdi:lightbulb
+    cards:
+      - type: entities
+        title: Living
+        entities:
+          - light.tradfri_bulb
+          - light.tradfri_bulb_2
+          - light.tradfri_bulb_3
+          - light.tradfri_bulb_4
+      - type: entities
+        title: tuinverlichting
+        entities:
+          - switch.verlichting_terras
   - title: Weather
     icon: mdi:weather-sunny
     cards:
@@ -147,9 +160,7 @@ views:
     icon: mdi:television-classic
     cards:
       - type: media-control
-        entity: media_player.kodi_libreelec_local
-      - type: media-control
-        entity: media_player.living_main
+        entity:  media_player.living_room_main
   - title: commute
     icon: mdi:car
     cards:
