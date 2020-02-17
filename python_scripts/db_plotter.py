@@ -20,6 +20,7 @@ import PIL.ImageOps
 from pyunsplash import PyUnsplash
 from random import randint
 from scipy import interpolate
+import random
 
 #location where figure will be stored
 path="/home/homeassistant/.homeassistant/www"
@@ -135,7 +136,7 @@ if display_option==2:
 
     fig.savefig('plot.png',bbox_inches='tight',dpi=dpi)
     # create BMP
-    cp = subprocess.run(["convert plot.png -resize 640x384 -type GrayScale -depth 8 black2.bmp"],shell=True,stdout=subprocess.PIPE)
+    cp = subprocess.run(["convert plot.png -resize 640x384! -type GrayScale -depth 8 black2.bmp"],shell=True,stdout=subprocess.PIPE)
 
 elif display_option==1:
     entity_id='sensor.robot_power'
@@ -170,7 +171,7 @@ elif display_option==1:
 
     fig.savefig('plot.png',bbox_inches='tight',dpi=dpi)
     # create BMP
-    cp = subprocess.run(["convert plot.png -resize 640x384 -type GrayScale -depth 8 black2.bmp"],shell=True,stdout=subprocess.PIPE)
+    cp = subprocess.run(["convert plot.png -resize 640x384! -type GrayScale -depth 8 black2.bmp"],shell=True,stdout=subprocess.PIPE)
 # elif display_option==3:
 #     str_qtd=wikiquote.quote_of_the_day()
 #
@@ -214,7 +215,7 @@ elif display_option==4:
             cp = subprocess.run([cmd],shell=True,stdout=subprocess.PIPE)
             break
 
-    cp = subprocess.run(["convert unsplash.jpeg -resize 640x384 -type GrayScale -depth 8  -rotate \"180\" black1.bmp"],shell=True,stdout=subprocess.PIPE)
+    cp = subprocess.run(["convert unsplash.jpeg -resize 640x384! -type GrayScale -depth 8  -rotate \"180\" black1.bmp"],shell=True,stdout=subprocess.PIPE)
 elif display_option==5:
     entity_id='sensor.temperature_bathroom'
     url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
@@ -422,7 +423,7 @@ elif display_option==5:
     # offset=offset+5
     # draw.text((margin, offset), 'Temp Badkamer  '+format(state_array[-1],'.0f')+' C', font=font)
     # image.save('test.png')
-    cp = subprocess.run(["convert test.png -resize 640x384 -type GrayScale -depth 8  -rotate \"180\" black1.bmp"],shell=True,stdout=subprocess.PIPE)
+    cp = subprocess.run(["convert test.png -resize 640x384! -type GrayScale -depth 8  -rotate \"180\" black1.bmp"],shell=True,stdout=subprocess.PIPE)
 
 
     # fig=plt.figure(num=None, figsize=(int(width_displ/dpi), int(height_displ/dpi)), dpi=dpi, facecolor='w', edgecolor='k')
@@ -445,3 +446,51 @@ elif display_option==5:
     # fig.savefig('plot.png',bbox_inches='tight',dpi=dpi)
     # # create BMP
     # cp = subprocess.run(["convert plot.png -resize 640x384 -type GrayScale -depth 8 black2.bmp"],shell=True,stdout=subprocess.PIPE)
+elif display_option==6:
+    path_foto="/home/homeassistant/.homeassistant/blackandwhite"
+    os.chdir(path_foto)
+
+    #select random foto from diretory
+    arr = next(os.walk('.'))[2]
+    imagename=arr[random.randint(0,len(arr))]
+
+    #get image size
+    cp = subprocess.run(["convert "+imagename+" -ping -format \"%w\" info:"],shell=True,stdout=subprocess.PIPE)
+    width=cp.stdout.decode('utf-8')
+
+    cp = subprocess.run(["convert "+imagename+" -ping -format \"%h\" info:"],shell=True,stdout=subprocess.PIPE)
+    height=cp.stdout.decode('utf-8')
+
+    ratio=int(width)/int(height)
+    ratio_epap=width_displ/height_displ
+    ratio_epap2=width_displ/(2*height_displ)
+
+    if ratio<ratio_epap2:
+        UseTwoDisplays=True
+    else:
+        UseTwoDisplays=False
+
+    if UseTwoDisplays:
+        os.chdir(path_foto)
+        # split picture in two
+
+        cp = subprocess.run(["convert "+imagename+" -resize 640x768! -type GrayScale -depth 8 temp.bmp"],shell=True,stdout=subprocess.PIPE)
+        cp = subprocess.run(["convert temp.bmp -crop 640x384! black%0d.bmp"],shell=True,stdout=subprocess.PIPE)
+
+        #rotate first picture
+        cp = subprocess.run(["convert black0.bmp -rotate \"180\" black0.bmp"],shell=True,stdout=subprocess.PIPE)
+
+        #copy to www location
+        os.chdir(os.path.dirname(path_foto))
+        cp = subprocess.run(["mv blackandwhite/black1.bmp www/black2.bmp"],shell=True,stdout=subprocess.PIPE)
+        cp = subprocess.run(["mv blackandwhite/black0.bmp www/black1.bmp"],shell=True,stdout=subprocess.PIPE)
+    else:
+        os.chdir(path_foto)
+        cp = subprocess.run(["convert "+imagename+" -resize 640x384! -type GrayScale -depth 8 temp.bmp"],shell=True,stdout=subprocess.PIPE)
+
+        os.chdir(os.path.dirname(path_foto))
+        cp = subprocess.run(["mv blackandwhite/temp.bmp www/black2.bmp"],shell=True,stdout=subprocess.PIPE)
+
+    os.chdir(path_foto)
+    if os.path.isfile(path_foto+"/temp.bmp"):
+        os.remove(path_foto+"/temp.bmp")
