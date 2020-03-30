@@ -64,12 +64,16 @@ views:
           - sensor.temperature_slaapkamer
         hours_to_show: 72
         refresh_interval: 600
-      - type: history-graph
-        title: 'temp zolder'
-        entities:
-          - sensor.temperature_zolder
+      - type: sensor
+        entity: sensor.temperature_living
+        graph: line
+        detail: 2
         hours_to_show: 72
-        refresh_interval: 600
+      - type: sensor
+        entity: sensor.temperature_zolder
+        graph: line
+        detail: 2
+        hours_to_show: 72
   - title: lights
     icon: mdi:lightbulb
     cards:
@@ -138,14 +142,53 @@ views:
         entities:
           - switch.s20_control
           - switch.s26_control
+  - title: media
+    icon: mdi:television-classic
+    cards:
+      - type: media-control
+        entity:  media_player.living_room_main
+      - type: entities
+        title: Bluetooth speaker
+        entities:
+          - input_boolean.start_bluetooth_speaker
+          - input_boolean.pause_bluetooth_speaker
+          - input_boolean.resume_bluetooth_speaker
+      - type: media-control
+        entity:  media_player.living_room_tv
+  - title: commute
+    icon: mdi:car
+    cards:
+      - type: entities
+        entities:
+          - sensor.commute
+  - title: corona
+    cards:
+      - type: entities
+        entities:
+          - sensor.belgium_coronavirus_recovered
+          - sensor.belgium_coronavirus_deaths
+          - sensor.belgium_coronavirus_current
+          - sensor.belgium_coronavirus_confirmed
+      - type: entities
+        entities:
+          - sensor.worldwide_coronavirus_confirmed
+          - sensor.worldwide_coronavirus_deaths
+          - sensor.worldwide_coronavirus_current
+          - sensor.worldwide_coronavirus_confirmed
+      - type: history-graph
+        entities:
+          - sensor.belgium_coronavirus_deaths
+        hours_to_show: 96
+      - type: history-graph
+        entities:
+          - sensor.belgium_coronavirus_confirmed
+        hours_to_show: 96
   - title: Presence
     icon: mdi:human-male-female
     cards:
       - type: glance
         title: aanwezigheid
         entities:
-          - device_tracker.7c_7d_3d_ba_ef_be
-          - device_tracker.motorolla_stijn
           - binary_sensor.alarm_state
   - title: humidity
     icon: mdi:water-percent
@@ -156,14 +199,20 @@ views:
           - sensor.humidity_zolder
           - sensor.humidity_bathroom
           - sensor.humidity_slaapkamer
-  - title: media
-    icon: mdi:television-classic
-    cards:
-      - type: media-control
-        entity:  media_player.living_room_main
-  - title: commute
-    icon: mdi:car
-    cards:
       - type: entities
+        title: water level
         entities:
-          - sensor.commute
+          - sensor.water_level
+          - sensor.waterlevel
+      - type: history-graph
+        title: 'water level'
+        entities:
+          - sensor.water_level
+        hours_to_show: 8760
+        refresh_interval: 600
+      - type: history-graph
+        title: 'waterniveau'
+        entities:
+          - sensor.waterlevel
+        hours_to_show: 8760
+        refresh_interval: 600
