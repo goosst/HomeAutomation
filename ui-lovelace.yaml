@@ -19,21 +19,6 @@ views:
         title: Badkamer
         entities:
           - switch.handdoekdroger_control
-      - type: entities
-        title: automations
-        entities:
-          - automation.handdoekdroger_automatisch
-          - automation.start_ventilator_radiator
-          - automation.stop_ventilator_radiator
-          - automation.heating_off_when_turning_alarm_on
-          - automation.heating_on_when_turning_alarm_off
-          - automation.read_ebus
-  #        - automation.set_temp_high_when_being_home_weekend
-  #        - automation.set_temp_high_when_being_home_workday
-          # - automation.set_temp_low_when_leaving_house
-          # - automation.wakup_turn_heating_up_weekday
-          # - automation.wakup_turn_heating_up_saturday
-          # - automation.wakup_turn_heating_up_sunday
       - type: history-graph
         title: 'heater setpunt'
         entities:
@@ -74,20 +59,6 @@ views:
         graph: line
         detail: 2
         hours_to_show: 72
-  - title: lights
-    icon: mdi:lightbulb
-    cards:
-      - type: entities
-        title: Living
-        entities:
-          - light.tradfri_bulb
-          - light.tradfri_bulb_2
-          - light.tradfri_bulb_3
-          - light.tradfri_bulb_4
-      - type: entities
-        title: tuinverlichting
-        entities:
-          - switch.verlichting_terras
   - title: Weather
     icon: mdi:weather-sunny
     cards:
@@ -105,8 +76,26 @@ views:
           - sensor.br_wind_direction
       - type: iframe
         url: https://weerdata.weerslag.nl/image/1.0/?size=ani-forecast-550x550&type=Freecontent&v=14487341
-        aspect_ratio: 140%
+        aspect_ratio: 100%
         title: Buien
+      - type: iframe
+        url: https://pollennieuws.nl/weerkaart/be-320kaart-website.png
+        aspect_ratio: 100%
+        title: Pollen
+  - title: lights
+    icon: mdi:lightbulb
+    cards:
+      - type: entities
+        title: Living
+        entities:
+          - light.tradfri_bulb
+          - light.tradfri_bulb_2
+          - light.tradfri_bulb_3
+          - light.tradfri_bulb_4
+      - type: entities
+        title: tuinverlichting
+        entities:
+          - switch.verlichting_terras
   - title: gras robot
     icon: mdi:ladybug
     cards:
@@ -161,28 +150,6 @@ views:
       - type: entities
         entities:
           - sensor.commute
-  - title: corona
-    cards:
-      - type: entities
-        entities:
-          - sensor.belgium_coronavirus_recovered
-          - sensor.belgium_coronavirus_deaths
-          - sensor.belgium_coronavirus_current
-          - sensor.belgium_coronavirus_confirmed
-      - type: entities
-        entities:
-          - sensor.worldwide_coronavirus_confirmed
-          - sensor.worldwide_coronavirus_deaths
-          - sensor.worldwide_coronavirus_current
-          - sensor.worldwide_coronavirus_confirmed
-      - type: history-graph
-        entities:
-          - sensor.belgium_coronavirus_deaths
-        hours_to_show: 96
-      - type: history-graph
-        entities:
-          - sensor.belgium_coronavirus_confirmed
-        hours_to_show: 96
   - title: Presence
     icon: mdi:human-male-female
     cards:
@@ -190,6 +157,11 @@ views:
         title: aanwezigheid
         entities:
           - binary_sensor.alarm_state
+      - type: glance
+        title: Post
+        entities:
+          - input_number.mailboxfull
+          - sensor.mailbox
   - title: humidity
     icon: mdi:water-percent
     cards:
@@ -216,3 +188,51 @@ views:
           - sensor.waterlevel
         hours_to_show: 8760
         refresh_interval: 600
+  - title: zon
+    icon: mdi:solar-power
+    cards:
+      - type: entities
+        title: energy
+        entities:
+          - sensor.solaredge_energy_today
+          - sensor.solaredge_energy_this_month
+          - sensor.solaredge_energy_this_year
+      - type: entities
+        title: inverter
+        entities:
+          - sensor.solaredge_current_power
+          - sensor.solaredge_energy_today
+      - type: history-graph
+        title: 'solar power'
+        entities:
+          - sensor.solaredge_current_power
+        hours_to_show: 168
+        refresh_interval: 600
+      - type: history-graph
+        title: 'solar energy'
+        entities:
+          - sensor.solaredge_energy_today
+        hours_to_show: 8760
+        refresh_interval: 600
+  - title: corona
+    cards:
+      - type: entities
+        entities:
+          - sensor.belgium_coronavirus_recovered
+          - sensor.belgium_coronavirus_deaths
+          - sensor.belgium_coronavirus_current
+          - sensor.belgium_coronavirus_confirmed
+      - type: entities
+        entities:
+          - sensor.worldwide_coronavirus_confirmed
+          - sensor.worldwide_coronavirus_deaths
+          - sensor.worldwide_coronavirus_current
+          - sensor.worldwide_coronavirus_confirmed
+      - type: history-graph
+        entities:
+          - sensor.belgium_coronavirus_deaths
+        hours_to_show: 96
+      - type: history-graph
+        entities:
+          - sensor.belgium_coronavirus_confirmed
+        hours_to_show: 96
