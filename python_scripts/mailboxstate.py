@@ -27,17 +27,6 @@ readable_json=json.loads(temp)
 time_zone=readable_json['time_zone']
 tz = timezone(time_zone)
 
-# # get latest time
-# url='http://'+address_hass+':8123/api/states/sensor.date_time_iso'
-# response = get(url, headers=headers)
-# temp=response.text
-# readable_json=json.loads(temp)
-#
-# breakpoint()
-#
-# hass_time_real = datetime.datetime.strptime(readable_json['state'], '%Y-%m-%dT%H:%M:%S')
-# hass_time_recorder=datetime.datetime.strptime(readable_json['last_changed'],'%Y-%m-%dT%H:%M:%S.%f%z')
-
 #get latest Mailbox reading
 entity_id='sensor.mailbox'
 url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
@@ -60,8 +49,6 @@ for i in readable_json:
 time_last=time_array[-1]
 state_last=state_array[-1]
 
-# breakpoint()
-
 # was latest update recent?
 now=datetime.datetime.now().astimezone(tz)
 max_delay=datetime.timedelta(minutes=5)
@@ -69,13 +56,13 @@ max_delay=datetime.timedelta(minutes=5)
 if time_last>now-max_delay:
     #Check if empty (comparison in mm)
     if state_last<100:
-        payload='{"state": "Post!"}'
-    elif state_last>600:
-        payload='{"state": "Geen idee"}'
+        payload='{"state": "Check you post box!"}'
+    elif state_last>=100 and state_last<1200:
+        payload='{"state": "Empty post box"}'
     else:
-        payload='{"state": "Lege Bus"}'
+        payload='{"state": "No clue"}'
 else:
-    payload='{"state": "Geen idee"}'
+    payload='{"state": "No update"}'
 
 # Write state of postbox to home assistant
 url='http://'+address_hass+':8123/api/states/input_number.mailboxfull'
