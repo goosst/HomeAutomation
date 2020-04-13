@@ -58,7 +58,7 @@ if time_last>now-max_delay:
     if state_last<100:
         payload='{"state": "Check you post box!"}'
     elif state_last>=100 and state_last<1200:
-        payload='{"state": "Empty post box"}'
+        payload='{"state": "Post box is empty"}'
     else:
         payload='{"state": "No clue"}'
 else:
