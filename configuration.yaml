@@ -211,7 +211,7 @@ shell_command:
   music_bluetooth_connect: 'python3 /home/homeassistant/.homeassistant/python_scripts/music_initialize.py'
   music_bluetooth_pause: 'python3 /home/homeassistant/.homeassistant/python_scripts/music_pause.py'
   music_bluetooth_resume: 'python3 /home/homeassistant/.homeassistant/python_scripts/music_resume.py'
-  mailboxstate: 'python3 /home/homeassistant/.homeassistant/python_scripts/mailbox.py'
+  mailboxstate: 'python3 /home/homeassistant/.homeassistant/python_scripts/mailboxstate.py'
   # start_ebus: 'python3 /home/homeassistant/.homeassistant/python_scripts/start_ebus.py'
 
 input_number:
@@ -243,7 +243,7 @@ input_number:
     max: 7
     step: 1
   mailboxfull:
-    name: Post?
+    name: Mailbox
     initial: 2
     min: 0
     max: 2
@@ -350,7 +350,7 @@ webostv:
   host: 192.168.0.136
   name: Living Room TV
 
-
+shopping_list:
 # all automations are below
 
 automation theme_selector:
@@ -361,13 +361,25 @@ automation theme_selector:
     action:
       - service: frontend.set_theme
         data:
-          name: slate
+          name: stell_blue_with_colors
+
+# if powerfailure occurs of the grid, garden lights turn on
+automation start_tuinverlichting:
+  - alias: 'turn off tuinverlichting at startup'
+    trigger:
+      platform: homeassistant
+      event: start
+    action:
+      - service: switch.turn_off
+        data:
+          entity_id: switch.verlichting_terras
+
 
 automation MailBox:
   - alias: MailBox
     trigger:
-      platform: state
-      entity_id: sensor.mailbox
+      platform: template
+      value_template: "{{ (states.sensor.date_time.last_changed - states.sensor.mailbox.last_updated).total_seconds() > 30 }}"
     action:
       service: shell_command.mailboxstate
 
