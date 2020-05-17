@@ -1,6 +1,32 @@
 title: My Awesome Home
 views:
     # View tab title.
+  - title: Highlights
+    icon: mdi:home
+    cards:
+    - type: entity
+      entity: input_number.mailboxfull
+      icon: mdi:mailbox
+      name: Post Box
+    - type: horizontal-stack
+      cards:
+        - type: sensor
+          entity: sensor.temperature_setpoint_living
+          name: temperature setpoint
+        - type: sensor
+          entity: sensor.temperature_living
+          name: temperature living
+    - type: horizontal-stack
+      title: Solar panels
+      cards:
+        - type: entity
+          entity: sensor.solaredge_energy_today
+          unit: Wh
+        - type: gauge
+          entity: sensor.solaredge_current_power
+          name: 'Solar power'
+          min: 0
+          max: 3000
   - title: Heating
     icon: mdi:radiator
     cards:
@@ -189,7 +215,7 @@ views:
         hours_to_show: 8760
         refresh_interval: 600
   - title: zon
-    icon: mdi:solar-power
+    icon: mdi:solar-panel
     cards:
       - type: entities
         title: energy
@@ -214,6 +240,31 @@ views:
           - sensor.solaredge_energy_today
         hours_to_show: 8760
         refresh_interval: 600
+  - title: k8400
+    icon: mdi:printer-3d
+    cards:
+      - type: entity
+        entity: input_number.k8400_state
+        name: 3d printer
+      - type: horizontal-stack
+        cards:
+          - type: entity
+            entity: input_number.k8400_printtime_elapsed
+            name: time elapsed
+          - type: entity
+            entity: input_number.k8400_printtime_left
+            name: time left
+      - type: horizontal-stack
+        cards:
+          - type: entity
+            entity: input_number.k8400_tool0_temperature
+            name: temp extruder 1
+          - type: entity
+            entity: input_number.k8400_tool1_temperature
+            name: temp extruder 2
+          - type: entity
+            entity: input_number.k8400_bed_temperature
+            name: temp bed
   - title: corona
     cards:
       - type: entities

@@ -21,6 +21,12 @@ homeassistant:
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
+octoprint:
+  host: 192.168.0.210:5000
+  api_key: 710C8941F56F43F8867677AA5FD4569D
+  bed: true
+
+
 logger:
   default: warn
 
@@ -179,7 +185,7 @@ sensor:
     name: "MailBox"
     state_topic: tele/MailBox/SENSOR
     value_template: "{{ value_json['VL53L0X'].Distance }}"
-    expire_after: 7200
+    expire_after: 14400
     unit_of_measurement: "mm"
     availability_topic: "tele/MailBox/LWT"
     payload_available: "Online"
@@ -212,6 +218,7 @@ shell_command:
   music_bluetooth_pause: 'python3 /home/homeassistant/.homeassistant/python_scripts/music_pause.py'
   music_bluetooth_resume: 'python3 /home/homeassistant/.homeassistant/python_scripts/music_resume.py'
   mailboxstate: 'python3 /home/homeassistant/.homeassistant/python_scripts/mailboxstate.py'
+  octoprint: 'python3 /home/homeassistant/.homeassistant/python_scripts/octoprint.py'
   # start_ebus: 'python3 /home/homeassistant/.homeassistant/python_scripts/start_ebus.py'
 
 input_number:
@@ -458,6 +465,13 @@ automation turn_off_ventilator:
         data:
           entity_id: switch.ventilator_control
 
+automation 3dprinter:
+  - alias: 3dprinter
+    trigger:
+      platform: time_pattern
+      minutes: '/2'
+    action:
+      - service: shell_command.octoprint
 
 automation epaper:
   - alias: epaper
