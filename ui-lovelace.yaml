@@ -114,10 +114,10 @@ views:
       - type: entities
         title: Living
         entities:
-          - light.tradfri_bulb
           - light.tradfri_bulb_2
           - light.tradfri_bulb_3
-          - light.tradfri_bulb_4
+          - light.tradfri_bulb_5
+          - light.tradfri_bulb_8
       - type: entities
         title: tuinverlichting
         entities:
@@ -200,12 +200,12 @@ views:
       - type: entities
         title: water level
         entities:
-          - sensor.water_level
-          - sensor.waterlevel
+          - sensor.water_level_current
+          - sensor.water_level_voltage
       - type: history-graph
         title: 'water level'
         entities:
-          - sensor.water_level
+          - sensor.water_level_current
         hours_to_show: 8760
         refresh_interval: 600
       - type: history-graph
@@ -243,6 +243,9 @@ views:
   - title: k8400
     icon: mdi:printer-3d
     cards:
+      - type: iframe
+        url: http://192.168.0.209:8080/?action=stream
+        aspect_ratio: 100%
       - type: entity
         entity: input_number.k8400_state
         name: 3d printer
@@ -260,30 +263,9 @@ views:
             entity: input_number.k8400_tool0_temperature
             name: temp extruder 1
           - type: entity
-            entity: input_number.k8400_tool1_temperature
-            name: temp extruder 2
-          - type: entity
             entity: input_number.k8400_bed_temperature
             name: temp bed
-  - title: corona
-    cards:
-      - type: entities
-        entities:
-          - sensor.belgium_coronavirus_recovered
-          - sensor.belgium_coronavirus_deaths
-          - sensor.belgium_coronavirus_current
-          - sensor.belgium_coronavirus_confirmed
-      - type: entities
-        entities:
-          - sensor.worldwide_coronavirus_confirmed
-          - sensor.worldwide_coronavirus_deaths
-          - sensor.worldwide_coronavirus_current
-          - sensor.worldwide_coronavirus_confirmed
-      - type: history-graph
-        entities:
-          - sensor.belgium_coronavirus_deaths
-        hours_to_show: 96
-      - type: history-graph
-        entities:
-          - sensor.belgium_coronavirus_confirmed
-        hours_to_show: 96
+      - type: horizontal-stack
+        cards:
+          - type: entity
+            entity: input_select.led_printer

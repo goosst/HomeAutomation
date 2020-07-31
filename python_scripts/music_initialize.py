@@ -14,6 +14,7 @@ address_hass=parameters.address_hass
 # turn on soundbar and put in bluetooth mode through home assistant REST interface (maybe not even needed)
 cp = subprocess.Popen(["pkill vlc"],shell=True,stdout=subprocess.PIPE)
 
+# Turn on
 url='http://'+address_hass+':8123/api/services/media_player/turn_on'
 data = {}
 data['entity_id'] = 'media_player.living_room_main'
@@ -21,6 +22,7 @@ payload = json.dumps(data)
 post(url,data=payload,headers=headers)
 time.sleep(1)
 
+# Put in bluetooth mode
 url='http://'+address_hass+':8123/api/services/media_player/select_source'
 data = {}
 data['entity_id'] = 'media_player.living_room_main'
@@ -42,8 +44,8 @@ bluetoothctl("power","off")
 bluetoothctl("power","on")
 bluetoothctl("agent","on")
 # bluetoothctl("select","00:1A:7D:DA:71:14")
-bluetoothctl("select","F0:03:8C:05:F0:DA") #Get this address by: running the commands on your host system 1) bluetoothctl 2) list
-bluetoothctl("disconnect", "94:E3:6D:61:59:72") #Get this address by: running the commands on your host system 1) bluetoothctl 2) devices
+bluetoothctl("select","F0:03:8C:05:F0:DA") #Get this address of your bluetooth adapter by running the commands on your host system 1) bluetoothctl 2) list
+bluetoothctl("disconnect", "94:E3:6D:61:59:72") #Get the address of your bluetooth speaker by running the commands on your host system 1) bluetoothctl 2) "scan on" 3) devices
 bluetoothctl("connect", "94:E3:6D:61:59:72")
 
 ## VLC stuff
@@ -51,8 +53,6 @@ bluetoothctl("connect", "94:E3:6D:61:59:72")
 # play a file added in /home/homeassistant/.homeassistant/www/ folder
 # enable http stuff to be able to pause and resume and create playlists
 cp = subprocess.Popen(["cvlc --no-video '/home/homeassistant/.homeassistant/www/test.mp3' -I http --http-password fubar &"],shell=True,stdout=subprocess.PIPE)
-
-
 
 # cp = subprocess.Popen(["cvlc --no-video http://192.168.0.205:8123/local/test.mp3"],shell=True,stdout=subprocess.PIPE)
 # cp = subprocess.Popen(["cvlc --no-video /home/stijn/test.mp3 &"],shell=True,stdout=subprocess.PIPE)

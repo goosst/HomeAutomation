@@ -3,6 +3,9 @@
 from requests import get,post
 import json
 import datetime
+import getopt
+import sys
+
 
 def update_hass_variables_seconds( address_hass,headers_hass,number_string,hass_variable ):
     if number_string is None:
@@ -22,9 +25,28 @@ def update_hass_variables_string( address_hass,headers_hass,number_string,hass_v
     url='http://'+address_hass+':8123/api/states/input_number.'+hass_variable
     post(url,data=payload,headers=headers_hass)
 
+# check if passed options are valid
+try:
+    options, args = getopt.getopt(sys.argv[1:], 'L:',['led_status='])
+    print(options)
+    print(args)
+except getopt.GetoptError:
+    print("incorrect syntax")
+    print("usage: python3 octoprint.py -L <value>")
+    print("default to off degrees")
+    msg2='off'
+    sys.exit(2)
+for opt, value in options:
+    if opt in ('-l','-L','--led_status'):
+        msg2=value
+        print("successful argument")
+        print(msg2)
+
+
 import headerfiles as parameters
 headers_octo=parameters.headers_octoprint
-address_octo=parameters.address_octoprint
+address_octo=headers_octo['Host']
+
 
 headers_hass=parameters.headers
 address_hass=parameters.address_hass
@@ -51,6 +73,13 @@ json_progress=job_json['progress']
 json_job=job_json['job']
 # json_job['estimatedPrintTime']
 
+# data = {}
+# data['command'] = 'M114'
+# payload = json.dumps(data)
+# url='http://'+address_octo+':5000/api/printer/command'
+# response = post(url,data=payload,headers=headers_octo)
+# temp=response.text
+
 ## report to hass
 # print status
 payload='{"state": "'+octo_state+'"}'
@@ -65,4 +94,21 @@ update_hass_variables_seconds( address_hass,headers_hass,json_job['estimatedPrin
 
 update_hass_variables_string( address_hass,headers_hass,printer_json['temperature']['bed']['actual'],'k8400_bed_temperature')
 update_hass_variables_string( address_hass,headers_hass,printer_json['temperature']['tool0']['actual'],'k8400_tool0_temperature')
-update_hass_variables_string( address_hass,headers_hass,printer_json['temperature']['tool1']['actual'],'k8400_tool1_temperature' )
+# update_hass_variables_string( address_hass,headers_hass,printer_json['temperature']['tool1']['actual'],'k8400_tool1_temperature' )
+
+# turn led on or off from printer
+entity_id='input_select.led_printer'
+url='http://'+address_hass+':8123/api/states/'+entity_id
+response = get(url, headers=headers_hass)
+temp=response.text
+led_state_requested=json.loads(temp)
+
+data = {}
+if led_state_requested['state']=='True':
+    data['command'] = 'ledon'
+else:
+    data['command'] = 'ledoff'
+payload = json.dumps(data)
+url='http://'+address_octo+':5000/api/printer/command'
+response = post(url,data=payload,headers=headers_octo)
+temp=response.text
