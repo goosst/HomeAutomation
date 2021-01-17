@@ -34,6 +34,7 @@ readable_json=json.loads(temp)
 hass_time_real = datetime.datetime.strptime(readable_json['state'], '%Y-%m-%dT%H:%M:%S')
 hass_time_recorder=datetime.datetime.strptime(readable_json['last_changed'],'%Y-%m-%dT%H:%M:%S.%f%z')
 
+#get latest temperatures
 entity_id='sensor.temperature_bathroom'
 url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
 response = get(url, headers=headers)
@@ -104,62 +105,100 @@ try:
         manual_heating=True
     else:
         manual_heating=False
+
     print(manual_heating)
 except:
     # dummy variable was not created before, should be made more robust instead of try except construction
+    print("exception state")
     url='http://'+address_hass+':8123/api/states/input_number.dummy_heater'
     payload='{"state": "auto_off"}'
     post(url,data=payload,headers=headers)
     manual_heating=False
 
-# check if alarm state is used
-entity_id='sensor.next_alarm'
-alarm_on=False
-try:
-    url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
-    response = get(url, headers=headers)
-    temp=response.text
-    temp=temp[1:len(temp)-1]
-    readable_json=json.loads(temp)
 
-    time_array_alarm= np.array([])
-    state_array_alarm=np.array([])
-    for i in readable_json:
-        try:
-            state_array_alarm=np.append(state_array_alarm,i['state'])
-            time_update=datetime.datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
-            time_array_alarm=np.append(time_array_alarm, time_update.astimezone(tz))
-        except:
-            print("unknown state")
-
-    # last timestap
-    time_last_alarm=time_array_alarm[-1]
-    state_last_alarm=state_array_alarm[-1]
-    state_last_alarm=datetime.datetime.strptime(state_last_alarm,'%Y-%m-%d %H:%M:%S')
-    if hass_time_real.date()==state_last_alarm.date():
-        alarm_on=True
-    else:
-        alarm_on=False
-except:
-    # dummy variable was not created before, should be made more robust instead of try except construction
+legacy_date=False
+if legacy_date:
+    # check if alarm state is used
+    entity_id='sensor.next_alarm'
     alarm_on=False
+    try:
+        url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
+        response = get(url, headers=headers)
+        temp=response.text
+        temp=temp[1:len(temp)-1]
+        readable_json=json.loads(temp)
+
+        time_array_alarm= np.array([])
+        state_array_alarm=np.array([])
+        for i in readable_json:
+            try:
+                state_array_alarm=np.append(state_array_alarm,i['state'])
+                time_update=datetime.datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
+                time_array_alarm=np.append(time_array_alarm, time_update.astimezone(tz))
+            except:
+                print("unknown state")
+
+        # last timestap
+        time_last_alarm=time_array_alarm[-1]
+        state_last_alarm=state_array_alarm[-1]
+        state_last_alarm=datetime.datetime.strptime(state_last_alarm,'%Y-%m-%d %H:%M:%S')
+        if hass_time_real.date()==state_last_alarm.date():
+            alarm_on=True
+        else:
+            alarm_on=False
+    except:
+        # dummy variable was not created before, should be made more robust instead of try except construction
+        alarm_on=False
+else:
+    # check if alarm state is used
+    entity_id='input_datetime.next_alarm'
+    alarm_on=False
+    try:
+        url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
+        response = get(url, headers=headers)
+        temp=response.text
+        temp=temp[1:len(temp)-1]
+        readable_json=json.loads(temp)
+
+        time_array_alarm= np.array([])
+        state_array_alarm=np.array([])
+        for i in readable_json:
+            try:
+                state_array_alarm=np.append(state_array_alarm,i['state'])
+                time_update=datetime.datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
+                time_array_alarm=np.append(time_array_alarm, time_update.astimezone(tz))
+            except:
+                print("unknown state")
+        # last timestap
+        time_last_alarm=time_array_alarm[-1]
+        state_last_alarm=state_array_alarm[-1]
+        state_last_alarm=datetime.datetime.strptime(state_last_alarm,'%Y-%m-%d %H:%M:%S')
+        if hass_time_real.date()==state_last_alarm.date():
+            alarm_on=True
+        else:
+            alarm_on=False
+    except:
+        # dummy variable was not created before, should be made more robust instead of try except construction
+        alarm_on=False
 
 #turn on heater if temp is too low in the morning
-
-#very simplistic formula
+#very simplistic formula and clip to a maximum
 heating_time=(21-temp_last)*6 #minutes to turn on heating
 if heating_time>75:
     heating_time=75
 
 heating_time=datetime.timedelta(minutes=heating_time)
 
+
 # time_on=datetime.time( 5,20,0 )
 # time_on=datetime.datetime.combine(now.date(),time_on)
 now=datetime.datetime.now().astimezone(tz)
 
-time_off=datetime.time( 5,59,0 ) #nachttarrief
+# time_off=datetime.time( 5,59,0 ) #nachttarrief
+time_off=datetime.time(7,15,0 )
 time_off=datetime.datetime.combine(now.date(),time_off)
-time_off=time_off.astimezone(tz)
+# time_off=time_off.astimezone(tz)
+time_off=tz.localize(time_off)
 
 time_on=time_off-heating_time
 
@@ -174,13 +213,21 @@ if now>time_on and now<time_off and offtime_later_ontime and temp_last<17:
     payload='{"state": "auto_on"}'
     post(url,data=payload,headers=headers)
 elif now>time_off and offtime_later_ontime or temp_last>20:
-    msg2="OFF"
+    msg2="OFF" # communicate to hass heater was turned off automatically
     payload='{"state": "auto_off"}'
     post(url,data=payload,headers=headers)
 else:
 	msg2="OFF"
 
-if (manual_heating==False) and (alarm_on==True):
-    msg1="mosquitto_pub -h localhost -t cmnd/sonoff/Power1 -u stijn -P mqtt -m "
-    cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+if (manual_heating==False):
+    print(msg2)
+    payload='{"entity_id": "switch.handdoekdroger_control"}'
+    url='http://'+address_hass+':8123/api/services/switch/turn_'+msg2
+    post(url,data=payload,headers=headers)
+
+    # msg1="mosquitto_pub -h localhost -t cmnd/sonoff/Power1 -u stijn -P mqtt -m "
+    # cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+#if (manual_heating==False) and (alarm_on==True):
+#    msg1="mosquitto_pub -h localhost -t cmnd/sonoff/Power1 -u stijn -P mqtt -m "
+#    cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
 #print(msg2)
