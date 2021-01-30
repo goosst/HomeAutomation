@@ -1,7 +1,8 @@
 # turns electric heater in bathroom on and off in the morning from home assistant
 # 17 nov 19: differentiates between manually turned on and automatically turned on, to decide when to turn heater off
 # done by setting a dummy variable through the rest api
-# 30 nov 19: checks if alarm was set in the morning
+# 30 nov 19: checks if alarm was set in the morning through Hassalarm app on phone
+# 30 jan 21: updated name of variable of heater-plug to handdoekdroger_control, re-used alarm state
 import subprocess
 import datetime
 # from ilock import ILock
@@ -34,7 +35,7 @@ readable_json=json.loads(temp)
 hass_time_real = datetime.datetime.strptime(readable_json['state'], '%Y-%m-%dT%H:%M:%S')
 hass_time_recorder=datetime.datetime.strptime(readable_json['last_changed'],'%Y-%m-%dT%H:%M:%S.%f%z')
 
-#get latest temperatures
+#get latest temperature in bathroom
 entity_id='sensor.temperature_bathroom'
 url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
 response = get(url, headers=headers)
@@ -56,8 +57,9 @@ for i in readable_json:
 time_last=time_array[-1]
 temp_last=state_array[-1]
 
-# check status of switch
-entity_id='binary_sensor.heater_status'
+# check status of heater plug
+# entity_id='binary_sensor.heater_status'
+entity_id='switch.handdoekdroger_control'
 url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
 response = get(url, headers=headers)
 temp=response.text
@@ -74,7 +76,7 @@ for i in readable_json:
     except:
         print("unknown state")
 
-# last timestap
+# status of heater plug at last timestap
 time_last_switch=time_array_switch[-1]
 state_last_switch=state_array_switch[-1]
 
@@ -150,7 +152,7 @@ if legacy_date:
         # dummy variable was not created before, should be made more robust instead of try except construction
         alarm_on=False
 else:
-    # check if alarm state is used
+    # check if alarm state is used through hassalarm
     entity_id='input_datetime.next_alarm'
     alarm_on=False
     try:
@@ -181,11 +183,15 @@ else:
         # dummy variable was not created before, should be made more robust instead of try except construction
         alarm_on=False
 
+
 #turn on heater if temp is too low in the morning
-#very simplistic formula and clip to a maximum
-heating_time=(21-temp_last)*6 #minutes to turn on heating
-if heating_time>75:
-    heating_time=75
+#very simplistic formula and clipped to a maximum
+if alarm_on==True:
+    heating_time=(21-temp_last)*6 #minutes to turn on heating
+    if heating_time>75:
+        heating_time=75
+else:
+    heating_time=0
 
 heating_time=datetime.timedelta(minutes=heating_time)
 
