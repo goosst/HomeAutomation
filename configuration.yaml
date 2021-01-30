@@ -47,6 +47,10 @@ solaredge:
   api_key: !secret solaredge_api
   site_id: !secret solaredge_ID
 
+neato:
+  username: !secret neato_username
+  password: !secret neato_password
+
 zone:
   - name: Work
     latitude: !secret work_gps_lat
@@ -61,7 +65,7 @@ mqtt:
   broker: 127.0.0.1
   username: stijn
   password: !secret pass_mqtt
-  discovery: true
+  discovery: false
 
 sensor:
   - platform: time_date
@@ -76,15 +80,6 @@ sensor:
     destination: zone.work
     region: 'EU'
     vehicle_type: car
-  - platform: yr
-    name: weather_yr
-    forecast: 24
-    monitored_conditions:
-      - temperature
-      - precipitation
-      - windDirection
-      - windSpeed
-      - symbol
   - platform: mqtt
     name: "Temperature living"
     state_topic: sensor/thermostat/temperature
@@ -240,6 +235,13 @@ sensor:
     expire_after: 120
     payload_not_available: "pos z offline"
     unit_of_measurement: "mm"
+  - platform: mqtt
+    name: "zoldernok temp"
+    state_topic: tele/zolder_B5AEF2/SENSOR
+    value_template: "{{ value_json['Temperature'] }}"
+    expire_after: 120
+    payload_not_available: "temp zoldernok"
+    unit_of_measurement: "C"
   # - platform: solaredge_local
     # ip_address: 192.168.0.107
 # - platform: mqtt
@@ -320,8 +322,11 @@ input_boolean:
   pause_bluetooth_speaker:
     name: pause bluetooth speaker
     initial: off
-  resume_bluetooth_speaker:
-    name: resume bluetooth speaker
+  print_cancel:
+    name: cancel print
+    initial: off
+  print_pause_cyclic:
+    name: print pause cyclic
     initial: off
 
 input_select:
@@ -336,8 +341,8 @@ input_select:
 switch:
   - platform: mqtt
     name: "handdoekdroger control"
-    command_topic: cmnd/sonoff/Power1
-    state_topic: stat/sonoff/POWER
+    command_topic: cmnd/s26_bath/Power1
+    state_topic: stat/s26_bath/POWER
     payload_on: "ON"
     payload_off: "OFF"
   - platform: mqtt
@@ -352,6 +357,9 @@ switch:
     state_topic: stat/sonoff_vent/POWER
     payload_on: "ON"
     payload_off: "OFF"
+    availability_topic: "tele/sonoff_vent/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"    
   - platform: mqtt
     name: "S26 control"
     command_topic: cmnd/sonoff_s26/POWER
@@ -371,12 +379,28 @@ switch:
     payload_available: "Online"
     payload_not_available: "Offline"
   - platform: mqtt
+    name: "zolder licht"
+    command_topic: cmnd/zolder_B5AEF2/Power1
+    state_topic: stat/zolder_B5AEF2/POWER
+    availability_topic: "tele/zolder_B5AEF2/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
     name: "verlichting terras"
     command_topic: cmnd/tuinverlichting/Power1
     state_topic: stat/tuinverlichting/POWER
     payload_on: "ON"
     payload_off: "OFF"
     availability_topic: "tele/tuinverlichting/LWT"
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "balco 1"
+    command_topic: cmnd/tasmota_balco_1/Power1
+    state_topic: stat/tasmota_balco_1/POWER
+    payload_on: "ON"
+    payload_off: "OFF"
+    availability_topic: tele/tasmota_balco_1/LWT
     payload_available: "Online"
     payload_not_available: "Offline"
   - platform: command_line
@@ -509,7 +533,7 @@ automation turn_on_ventilator:
       - delay: '00:10:00'
       - service: switch.turn_on
         data:
-          entity_id: switch.ventilator_control
+          entity_id: switch.s26_control
 
 automation turn_off_ventilator:
   - alias: 'stop ventilator radiator'
@@ -521,7 +545,7 @@ automation turn_off_ventilator:
     action:
       - service: switch.turn_off
         data:
-          entity_id: switch.ventilator_control
+          entity_id: switch.s26_control
 
 automation 3dprinter:
   - alias: 3dprinter
@@ -709,9 +733,20 @@ automation alarm2_:
       - service: input_boolean.turn_on
         entity_id: input_boolean.turn_heating_on
 
+automation pomp_checks:
+  - alias: periodic run pump
+    trigger:
+      - platform: time
+        at: '9:00:00'
+    action:
+      - service: switch.turn_on
+        entity_id: switch.s26_control
+      - delay: '00:05:00'
+      - service: switch.turn_off
+        entity_id: switch.s26_control
 
-automation switches_low_energy_cost_on:
-  - alias: sonoff switches nachttarief
+automation switches_dagtarief_schakel_uit:
+  - alias: sonoff switches nachttarief uit
     trigger:
       - platform: time
         at: '21:00:00'
@@ -726,14 +761,14 @@ automation switches_low_energy_cost_on:
     action:
       - service: switch.turn_off
         entity_id: switch.s20_control
-      - service: switch.turn_on
-        entity_id: switch.s26_control
+      - service: switch.turn_off
+        entity_id: switch.balco_1
 
-automation switches_low_energy_cost_off:
-  - alias: sonoff switches nachttarief off
+automation switches_dagtarief_schakel_aan:
+  - alias: sonoff switches nachttarief aan
     trigger:
       - platform: time
-        at: '03:00:00'
+        at: '06:02:00'
     condition:
       - condition: time
         weekday:
@@ -743,8 +778,10 @@ automation switches_low_energy_cost_off:
           - thu
           - fri
     action:
-      - service: switch.turn_off
-        entity_id: switch.s26_control
+      - service: switch.turn_on
+        entity_id: switch.s20_control
+      - service: switch.turn_on
+        entity_id: switch.balco_1
 
 # music
 automation bluetooth_on:
@@ -949,9 +986,6 @@ recorder:
    # domains:
    #   - automation
    entities:
-     - sensor.weather_yr_wind_speed
-     - sensor.weather_yr_wind_direction
-     - sensor.weather_yr_symbol
      - sensor.br_wind_direction
      - sensor.br_symbol
      - sensor.br_rainchance_1d
