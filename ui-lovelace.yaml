@@ -61,6 +61,7 @@ views:
           - sensor.temperature_bathroom
           - sensor.temperature_slaapkamer
           - sensor.temperature_zolder
+          - sensor.zoldernok_temp
       - type: history-graph
         title: 'living temperature'
         entities:
@@ -122,33 +123,49 @@ views:
         title: tuinverlichting
         entities:
           - switch.verlichting_terras
-  - title: gras robot
+      - type: entities
+        title: zolderverlichting
+        entities:
+          - switch.zolder_licht
+  - title: robot
     icon: mdi:ladybug
     cards:
-      - type: entities
-        title: Gras robot control
-        entities:
-          - binary_sensor.robot_status
-          - switch.robomow_control
-      - type: entities
-        title: Energy and power
-        entities:
-          - sensor.robot_energy_today
-          - sensor.robot_total_energy
-          - sensor.robot_energy_start
-          - sensor.robot_power
-      - type: history-graph
-        title: 'Power'
-        entities:
-          - sensor.robot_power
-        hours_to_show: 72
-        refresh_interval: 600
-      - type: history-graph
-        title: 'Energy'
-        entities:
-          - sensor.robot_total_energy
-        hours_to_show: 72
-        refresh_interval: 600
+      - type: vertical-stack
+        title: Gras robot
+        cards:
+          - type: entities
+            title: Gras robot control
+            entities:
+              - binary_sensor.robot_status
+              - switch.robomow_control
+          - type: entities
+            title: Energy and power
+            entities:
+              - sensor.robot_energy_today
+              - sensor.robot_total_energy
+              - sensor.robot_energy_start
+              - sensor.robot_power
+          - type: history-graph
+            title: 'Power'
+            entities:
+              - sensor.robot_power
+            hours_to_show: 72
+            refresh_interval: 600
+          - type: history-graph
+            title: 'Energy'
+            entities:
+              - sensor.robot_total_energy
+            hours_to_show: 72
+            refresh_interval: 600
+      - type: vertical-stack
+        title: Vacuum
+        cards:
+          - type: entities
+            entities:
+              - switch.fluffie_schedule
+              - sensor.fluffie_battery
+          - type: picture-entity
+            entity: camera.fluffie_cleaning_map
   - title: switches
     icon: mdi:toggle-switch
     cards:
@@ -157,6 +174,7 @@ views:
         entities:
           - switch.s20_control
           - switch.s26_control
+          - switch.balco_1
   - title: media
     icon: mdi:television-classic
     cards:
@@ -176,6 +194,12 @@ views:
       - type: entities
         entities:
           - sensor.commute
+      - type: entities
+        title: Car electricity
+        entities:
+          - sensor.car_energy_today
+          - sensor.car_power
+          - sensor.car_total_energy
   - title: Presence
     icon: mdi:human-male-female
     cards:
@@ -267,5 +291,8 @@ views:
             name: temp bed
       - type: horizontal-stack
         cards:
-          - type: entity
-            entity: input_select.led_printer
+          - type: entities
+            entities: 
+              - input_select.led_printer
+              - input_boolean.print_cancel
+              - input_boolean.print_pause_cyclic

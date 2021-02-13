@@ -47,9 +47,9 @@ solaredge:
   api_key: !secret solaredge_api
   site_id: !secret solaredge_ID
 
-neato:
-  username: !secret neato_username
-  password: !secret neato_password
+# neato:
+#   username: !secret neato_username
+#   password: !secret neato_password
 
 zone:
   - name: Work
@@ -59,7 +59,7 @@ zone:
 
 media_player:
   - platform: yamaha_musiccast
-    host: 192.168.0.166
+    host: 192.168.0.164
 
 mqtt:
   broker: 127.0.0.1
@@ -242,6 +242,36 @@ sensor:
     expire_after: 120
     payload_not_available: "temp zoldernok"
     unit_of_measurement: "C"
+  - platform: mqtt
+    name: "Car energy today"
+    state_topic: tele/athom1_044E3E/SENSOR
+    value_template: "{{ value_json['ENERGY'].Today }}"
+    unit_of_measurement: "kWh"
+  - platform: mqtt
+    name: "Car power"
+    state_topic: tele/athom1_044E3E/SENSOR
+    value_template: "{{ value_json['ENERGY'].Power }}"
+    unit_of_measurement: "Watt"
+  - platform: mqtt
+    name: "Car total energy"
+    state_topic: tele/athom1_044E3E/SENSOR
+    value_template: "{{ value_json['ENERGY'].Total }}"
+    unit_of_measurement: "kWh"
+  - platform: mqtt
+    name: "Athom2 energy today"
+    state_topic: tele/athom2_045BCE/SENSOR
+    value_template: "{{ value_json['ENERGY'].Today }}"
+    unit_of_measurement: "kWh"
+  - platform: mqtt
+    name: "Athom2 power"
+    state_topic: tele/athom2_045BCE/SENSOR
+    value_template: "{{ value_json['ENERGY'].Power }}"
+    unit_of_measurement: "Watt"
+  - platform: mqtt
+    name: "Athom2 total energy"
+    state_topic: tele/athom2_045BCE/SENSOR
+    value_template: "{{ value_json['ENERGY'].Total }}"
+    unit_of_measurement: "kWh"
   # - platform: solaredge_local
     # ip_address: 192.168.0.107
 # - platform: mqtt
@@ -271,6 +301,7 @@ shell_command:
   music_bluetooth_resume: 'python3 /home/homeassistant/.homeassistant/python_scripts/music_resume.py'
   mailboxstate: 'python3 /home/homeassistant/.homeassistant/python_scripts/mailboxstate.py'
   octoprint: 'python3 /home/homeassistant/.homeassistant/python_scripts/octoprint.py'
+  alarm_clock_actions: 'python3 /home/homeassistant/.homeassistant/python_scripts/alarm_clock_actions.py'
   # start_ebus: 'python3 /home/homeassistant/.homeassistant/python_scripts/start_ebus.py'
 
 
@@ -408,6 +439,24 @@ switch:
       vlc:
         command_on: "cvlc --no-video http://192.168.0.205:8123/local/test.mp3 &"
         command_off: "pkill vlc"
+  - platform: mqtt
+    name: "athom 1"
+    command_topic: cmnd/athom1_044E3E/Power1
+    state_topic: stat/athom1_044E3E/POWER
+    payload_on: "ON"
+    payload_off: "OFF"
+    availability_topic: tele/athom1_044E3E/LWT
+    payload_available: "Online"
+    payload_not_available: "Offline"
+  - platform: mqtt
+    name: "athom 1"
+    command_topic: cmnd/athom2_045BCE/Power1
+    state_topic: stat/athom2_045BCE/POWER
+    payload_on: "ON"
+    payload_off: "OFF"
+    availability_topic: tele/athom1_044E3E/LWT
+    payload_available: "Online"
+    payload_not_available: "Offline"
 
 binary_sensor:
   - platform: mqtt
@@ -607,6 +656,24 @@ automation bathroom_heater:
     action:
       service: shell_command.set_heater #time to turn on is defined in python script
 
+automation livingroom_alarm:
+  - alias: gsm-alarm verwarming living
+    trigger:
+      platform: time_pattern
+      minutes: '/4'
+    condition:
+      condition: and
+      conditions:
+        - condition: time
+          weekday:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+    action:
+      service: shell_command.alarm_clock_actions #time to turn on is defined in python script
+
 automation slider:
   - alias: set_temperature_living
     trigger:
@@ -635,17 +702,17 @@ input_datetime:
     name: Next scheduled alarm
     has_date: true
     has_time: true
-automation clock_:
-  - alias: heating on x minutes before phone alarm
-    trigger:
-      platform: template
-      value_template: "{{ ((as_timestamp(states('sensor.date_time').replace(',','')) | int) + 55*60) == (state_attr('input_datetime.next_alarm', 'timestamp') | int)  }}"
-    action:
-    - service: input_boolean.turn_on
-      entity_id: input_boolean.turn_heating_on
-    - delay: '00:35:00'
-    - service: input_boolean.turn_off
-      entity_id: input_boolean.turn_heating_on
+# automation clock_:
+#   - alias: heating on x minutes before phone alarm
+#     trigger:
+#       platform: template
+#       value_template: "{{ ((as_timestamp(states('sensor.date_time').replace(',','')) | int) + 55*60) == (state_attr('input_datetime.next_alarm', 'timestamp') | int)  }}"
+#     action:
+#     - service: input_boolean.turn_on
+#       entity_id: input_boolean.turn_heating_on
+#     - delay: '00:35:00'
+#     - service: input_boolean.turn_off
+#       entity_id: input_boolean.turn_heating_on
 
 automation lights_start_watch_tv:
   - alias: lights_start_tv
@@ -763,6 +830,8 @@ automation switches_dagtarief_schakel_uit:
         entity_id: switch.s20_control
       - service: switch.turn_off
         entity_id: switch.balco_1
+      - service: switch.turn_off
+        entity_id: switch.athom_1
 
 automation switches_dagtarief_schakel_aan:
   - alias: sonoff switches nachttarief aan
@@ -782,6 +851,8 @@ automation switches_dagtarief_schakel_aan:
         entity_id: switch.s20_control
       - service: switch.turn_on
         entity_id: switch.balco_1
+      - service: switch.turn_on
+        entity_id: switch.athom_1  
 
 # music
 automation bluetooth_on:
