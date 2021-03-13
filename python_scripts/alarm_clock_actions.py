@@ -25,7 +25,7 @@ logging.basicConfig(filename='debug_alarmclock',
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                             datefmt='%Y-%m-%d %H:%M:%S',
-                            level=logging.DEBUG)
+                            level=logging.ERROR)
 logging.debug("script started")
 
 # check and create dummy variable which keeps track of state of heating
@@ -132,6 +132,28 @@ if time_hass>time_last_alarm and  time_hass<=(time_last_alarm+datetime.timedelta
     post(url,data=payload,headers=headers)
     logging.debug("new alarm set!")
 
+#get latest temperature livingroom
+entity_id='sensor.temperature_living'
+url='http://'+address_hass+':8123/api/history/period'+'?filter_entity_id='+entity_id
+response = get(url, headers=headers)
+temp=response.text
+temp=temp[1:len(temp)-1]
+readable_json=json.loads(temp)
+
+time_array= np.array([])
+state_array=np.array([])
+for i in readable_json:
+    try:
+        state_array=np.append(state_array,float(i['state']))
+        time_update=datetime.datetime.strptime(i['last_updated'],'%Y-%m-%dT%H:%M:%S.%f%z')
+        time_array=np.append(time_array, time_update.astimezone(tz))
+    except:
+        print("unknown state")
+
+# last timestap
+time_last=time_array[-1]
+temp_last=state_array[-1]
+
 
 # Do activities related to alarm
 if alarm_on==True:
@@ -150,7 +172,7 @@ if alarm_on==True:
     logging.debug(time_off)
 
 
-    if time_hass>time_on and state_last_dummyheater=='new_alarm_set':
+    if time_hass>time_on and state_last_dummyheater=='new_alarm_set' and temp_last<16:
         msg2='on'
         payload='{"entity_id": "input_boolean.turn_heating_on"}'
         url='http://'+address_hass+':8123/api/services/input_boolean/turn_'+msg2
