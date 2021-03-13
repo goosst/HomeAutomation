@@ -272,6 +272,34 @@ sensor:
     state_topic: tele/athom2_045BCE/SENSOR
     value_template: "{{ value_json['ENERGY'].Total }}"
     unit_of_measurement: "kWh"
+  - platform: mqtt
+    name: "Temperature setpoint zolder"
+    state_topic: sensor/thermostat/temperature_zolder_set
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Temperature zolder vaillant"
+    state_topic: sensor/thermostat/temperature_zolder_vaillant
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Temperature buiten vaillant"
+    state_topic: sensor/thermostat/temperature_outside_vaillant
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Temperature setp flow zolder"
+    state_topic: sensor/thermostat/temperature_flowtemp_zolder_set
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Temperature flow"
+    state_topic: sensor/thermostat/temperature_flow
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Temperature flow zolder"
+    state_topic: sensor/thermostat/temperature_flowtemp_zolder
+    unit_of_measurement: "°C"
+  - platform: mqtt
+    name: "Pressure boiler"
+    state_topic: sensor/thermostat/pressure_vaillant
+    unit_of_measurement: "Bar"    
   # - platform: solaredge_local
     # ip_address: 192.168.0.107
 # - platform: mqtt
@@ -302,6 +330,10 @@ shell_command:
   mailboxstate: 'python3 /home/homeassistant/.homeassistant/python_scripts/mailboxstate.py'
   octoprint: 'python3 /home/homeassistant/.homeassistant/python_scripts/octoprint.py'
   alarm_clock_actions: 'python3 /home/homeassistant/.homeassistant/python_scripts/alarm_clock_actions.py'
+  set_temp_zolder_high: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temp_zolder.py -t {{ states.input_number.slider_floor_day.state }}'
+  set_temp_zolder_low: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temp_zolder.py -t {{ states.input_number.slider_floor_night.state }}'
+  set_temp_zolder: 'python3 /home/homeassistant/.homeassistant/python_scripts/set_temp_zolder.py -t {{ states.input_number.slider_floor_now.state }}'
+
   # start_ebus: 'python3 /home/homeassistant/.homeassistant/python_scripts/start_ebus.py'
 
 
@@ -339,6 +371,27 @@ input_number:
     min: 0
     max: 2
     step: 1
+  slider_floor_now:
+    name: Set Temp Zolder
+    initial: 19
+    min: 5
+    max: 25
+    step: 0.25
+    unit_of_measurement: "°C"
+  slider_floor_night:
+    name: Temp Zolder Night
+    initial: 9
+    min: 5
+    max: 25
+    step: 0.25
+    unit_of_measurement: "°C"
+  slider_floor_day:
+    name: Temp Zolder Day
+    initial: 12
+    min: 5
+    max: 25
+    step: 0.25
+    unit_of_measurement: "°C"
 
 input_boolean:
   turn_heating_on:
@@ -358,6 +411,9 @@ input_boolean:
     initial: off
   print_pause_cyclic:
     name: print pause cyclic
+    initial: off
+  turn_heating_zolder_on:
+    name: Heating Zolder
     initial: off
 
 input_select:
@@ -434,13 +490,22 @@ switch:
     availability_topic: tele/tasmota_balco_1/LWT
     payload_available: "Online"
     payload_not_available: "Offline"
+  - platform: mqtt
+    name: "balco 2"
+    command_topic: cmnd/balco2_7ED98F/Power1
+    state_topic: stat/balco2_7ED98F/POWER
+    payload_on: "ON"
+    payload_off: "OFF"
+    availability_topic: tele/balco2_7ED98F/LWT
+    payload_available: "Online"
+    payload_not_available: "Offline"
   - platform: command_line
     switches:
       vlc:
         command_on: "cvlc --no-video http://192.168.0.205:8123/local/test.mp3 &"
         command_off: "pkill vlc"
   - platform: mqtt
-    name: "athom 1"
+    name: "athom car"
     command_topic: cmnd/athom1_044E3E/Power1
     state_topic: stat/athom1_044E3E/POWER
     payload_on: "ON"
@@ -449,7 +514,7 @@ switch:
     payload_available: "Online"
     payload_not_available: "Offline"
   - platform: mqtt
-    name: "athom 1"
+    name: "athom 2"
     command_topic: cmnd/athom2_045BCE/Power1
     state_topic: stat/athom2_045BCE/POWER
     payload_on: "ON"
@@ -544,6 +609,34 @@ automation turn_heating_off_living:
       to: 'off'
     action:
       - service: shell_command.set_temp_low
+        data:
+          message: "Turned living heating off"
+      - delay: '00:01:00'
+      - service: shell_command.read_ebus
+
+automation turn_heating_on_zolder:
+  - alias: 'turn heating living on'
+    trigger:
+      platform: state
+      entity_id: input_boolean.turn_heating_zolder_on
+      from: 'off'
+      to: 'on'
+    action:
+      - service: shell_command.set_temp_zolder_high
+        data:
+          message: "Turned living zolder on"
+      - delay: '00:01:00'
+      - service: shell_command.read_ebus
+
+automation turn_heating_off_living:
+  - alias: 'turn heating living off'
+    trigger:
+      platform: state
+      entity_id: input_boolean.turn_heating_zolder_on
+      from: 'on'
+      to: 'off'
+    action:
+      - service: shell_command.set_temp_zolder_low
         data:
           message: "Turned living heating off"
       - delay: '00:01:00'
@@ -674,6 +767,7 @@ automation livingroom_alarm:
     action:
       service: shell_command.alarm_clock_actions #time to turn on is defined in python script
 
+# set temperature when slider changes
 automation slider:
   - alias: set_temperature_living
     trigger:
@@ -682,6 +776,13 @@ automation slider:
     action:
       service: shell_command.set_temp_living
 
+automation slider_zolder:
+  - alias: set_temperature_zolder
+    trigger:
+      platform: state
+      entity_id: input_number.slider_floor_now
+    action:
+      service: shell_command.set_temp_zolder      
 # automation clock:
 #   - alias: heating on x minutes before phone alarm
 #     trigger:
@@ -831,7 +932,7 @@ automation switches_dagtarief_schakel_uit:
       - service: switch.turn_off
         entity_id: switch.balco_1
       - service: switch.turn_off
-        entity_id: switch.athom_1
+        entity_id: switch.athom_car
 
 automation switches_dagtarief_schakel_aan:
   - alias: sonoff switches nachttarief aan
@@ -852,7 +953,7 @@ automation switches_dagtarief_schakel_aan:
       - service: switch.turn_on
         entity_id: switch.balco_1
       - service: switch.turn_on
-        entity_id: switch.athom_1  
+        entity_id: switch.athom_car
 
 # music
 automation bluetooth_on:

@@ -41,6 +41,21 @@ views:
           - input_number.slider_night
           - input_number.slider1
           - sensor.temperature_flow_radiator
+          - sensor.temperature_flow
+      - type: entities
+        title: Zolder
+        entities:
+          - sensor.temperature_setpoint_zolder
+          - sensor.temperature_zolder_vaillant
+          - input_boolean.turn_heating_zolder_on
+          - input_number.slider_floor_day
+          - input_number.slider_floor_night
+          - input_number.slider_floor_now
+          - sensor.temperature_setp_flow_zolder
+          - sensor.temperature_flow_zolder
+          - sensor.pressure_boiler
+          - entity: switch.s26_control
+            name: "heating 2nd room"
       - type: entities
         title: Badkamer
         entities:
@@ -57,6 +72,7 @@ views:
       - type: entities
         title: Temperatures
         entities:
+          - sensor.temperature_buiten_vaillant
           - sensor.temperature_living
           - sensor.temperature_bathroom
           - sensor.temperature_slaapkamer
@@ -175,6 +191,21 @@ views:
           - switch.s20_control
           - switch.s26_control
           - switch.balco_1
+          - switch.balco_2
+          - switch.athom_2
+          - switch.athom_car
+      - type: entities
+        title: athom car
+        entities:
+          - sensor.car_energy_today
+          - sensor.car_power
+          - sensor.car_total_energy
+      - type: entities
+        title: athom 2
+        entities:
+          - sensor.athom2_energy_today
+          - sensor.athom2_power
+          - sensor.athom2_total_energy
   - title: media
     icon: mdi:television-classic
     cards:
