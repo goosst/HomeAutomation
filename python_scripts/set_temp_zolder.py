@@ -38,67 +38,83 @@ for opt, value in options:
 
 numberOfIterationsMax=5
 
-with ILock('ebus', timeout=200):
-    msg1="ebusctl write -c b7v z2DayTemp "
-    cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+msg1="ebusctl write -c b7v z2DayTemp "
+cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+time.sleep(1)
 
-    msg1="ebusctl write -c b7v z2NightTemp "
-    cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
-    time.sleep(15)
-    correctSetting=False
-    cntr1=0
-    while (correctSetting == False) and (cntr1<numberOfIterationsMax):
-        # get Hc1DayTemp reading
-        cntr=0
-        busread='ERR'
-        while (busread[0:3]=='ERR') and (cntr<numberOfIterationsMax):
-            cp = subprocess.run(["ebusctl read z2DayTemp"],shell=True,stdout=subprocess.PIPE)
-            cp_string=cp.stdout.decode('utf-8')
-            busread=cp_string[0:5]
-            logging.debug("z2daytemp")
-            logging.debug(busread)
-            time.sleep(5)
-            cntr=cntr+1
-            logging.debug(cntr)
+msg1="ebusctl write -c b7v z2NightTemp "
+cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+time.sleep(1)
 
-        #check if it is truly set
-        temp=cp.stdout
-        if int(float(temp[0:4]))!=int(float(msg2)):
-            # if not set correct, try to set it again
-            msg1="ebusctl write -c b7v z2DayTemp "
-            cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
-            time.sleep(15)
-        else:
-            correctSetting=True
-            logging.debug('setting z2DayTemp matches')
-            logging.debug(correctSetting)
-        cntr1=cntr1+1
+msg1="ebusctl write -c b7v z2ActualRoomTempDesired "
+cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+time.sleep(5)
 
-    correctSetting=False
-    cntr1=0
-    while (correctSetting == False) and (cntr1<numberOfIterationsMax):
-        # get Hc1DayTemp reading
-        cntr=0
-        busread='ERR'
-        while (busread[0:3]=='ERR') and (cntr<numberOfIterationsMax):
-            cp = subprocess.run(["ebusctl read z2NightTemp"],shell=True,stdout=subprocess.PIPE)
-            cp_string=cp.stdout.decode('utf-8')
-            busread=cp_string[0:5]
-            logging.debug("z2NightTemp")
-            logging.debug(busread)
-            time.sleep(5)
-            cntr=cntr+1
-            logging.debug(cntr)
+correctSetting=False
+cntr1=0
+while (correctSetting == False) and (cntr1<numberOfIterationsMax):
+    # get Hc1DayTemp reading
+    cntr=0
+    busread='ERR'
+    while (busread[0:3]=='ERR') and (cntr<numberOfIterationsMax):
+        cp = subprocess.run(["ebusctl read z2DayTemp"],shell=True,stdout=subprocess.PIPE)
+        cp_string=cp.stdout.decode('utf-8')
+        busread=cp_string[0:5]
+        logging.debug("z2daytemp")
+        logging.debug(busread)
+        time.sleep(5)
+        cntr=cntr+1
+        logging.debug(cntr)
 
-        #check if it is truly set
-        temp=cp.stdout
-        if int(float(temp[0:4]))!=int(float(msg2)):
-            # if not set correct, try to set it again
-            msg1="ebusctl write -c b7v z2NightTemp "
-            cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
-            time.sleep(15)
-        else:
-            correctSetting=True
-            logging.debug('setting z2NightTemp matches')
-        cntr1=cntr1+1
+    #check if it is truly set
+    temp=cp.stdout
+    if int(float(temp[0:4]))!=int(float(msg2)):
+        # if not set correct, try to set it again
+        msg1="ebusctl write -c b7v z2DayTemp "
+        cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+        time.sleep(15)
+    else:
+        correctSetting=True
+        logging.debug('setting z2DayTemp matches')
+        logging.debug(correctSetting)
+    cntr1=cntr1+1
+
+correctSetting=False
+cntr1=0
+while (correctSetting == False) and (cntr1<numberOfIterationsMax):
+    # get Hc1DayTemp reading
+    cntr=0
+    busread='ERR'
+    while (busread[0:3]=='ERR') and (cntr<numberOfIterationsMax):
+        cp = subprocess.run(["ebusctl read z2NightTemp"],shell=True,stdout=subprocess.PIPE)
+        cp_string=cp.stdout.decode('utf-8')
+        busread=cp_string[0:5]
+        logging.debug("z2NightTemp")
+        logging.debug(busread)
+        time.sleep(5)
+        cntr=cntr+1
+        logging.debug(cntr)
+
+    #check if it is truly set
+    temp=cp.stdout
+    if int(float(temp[0:4]))!=int(float(msg2)):
+        # if not set correct, try to set it again
+        msg1="ebusctl write -c b7v z2NightTemp "
+        cp = subprocess.run([msg1+msg2],shell=True,stdout=subprocess.PIPE)
+        time.sleep(15)
+    else:
+        correctSetting=True
+        logging.debug('setting z2NightTemp matches')
+    cntr1=cntr1+1
+
+cp = subprocess.run(["ebusctl read z2ActualRoomTempDesired"],shell=True,stdout=subprocess.PIPE)
+cp_string=cp.stdout.decode('utf-8')
+busread=cp_string[0:5]
+logging.debug("z2ActualRoomTempDesired")
+logging.debug(busread)
+time.sleep(5)
+temp=cp.stdout
+if int(float(temp[0:4]))!=int(float(msg2)):
+    logging.debug('setting z2ActualRoomTempDesired matches msg2')
+
 
