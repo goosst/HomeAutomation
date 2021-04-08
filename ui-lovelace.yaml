@@ -27,6 +27,14 @@ views:
           name: 'Solar power'
           min: 0
           max: 3000
+    - type: horizontal-stack
+      cards:
+        - type: sensor
+          entity: sensor.temperature_setpoint_zolder
+          name: temperature setpoint
+        - type: sensor
+          entity: sensor.temperature_zolder_vaillant
+          name: temperature zolder
   - title: Heating
     icon: mdi:radiator
     cards:
@@ -47,6 +55,7 @@ views:
         entities:
           - sensor.temperature_setpoint_zolder
           - sensor.temperature_zolder_vaillant
+          - input_boolean.work_from_home
           - input_boolean.turn_heating_zolder_on
           - input_number.slider_floor_day
           - input_number.slider_floor_night

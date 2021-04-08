@@ -380,14 +380,14 @@ input_number:
     unit_of_measurement: "°C"
   slider_floor_night:
     name: Temp Zolder Night
-    initial: 9
+    initial: 7
     min: 5
     max: 25
     step: 0.25
     unit_of_measurement: "°C"
   slider_floor_day:
     name: Temp Zolder Day
-    initial: 12
+    initial: 19
     min: 5
     max: 25
     step: 0.25
@@ -414,6 +414,9 @@ input_boolean:
     initial: off
   turn_heating_zolder_on:
     name: Heating Zolder
+    initial: off
+  work_from_home:
+    name: Working from home
     initial: off
 
 input_select:
@@ -615,7 +618,7 @@ automation turn_heating_off_living:
       - service: shell_command.read_ebus
 
 automation turn_heating_on_zolder:
-  - alias: 'turn heating living on'
+  - alias: 'turn heating zolder on'
     trigger:
       platform: state
       entity_id: input_boolean.turn_heating_zolder_on
@@ -628,8 +631,8 @@ automation turn_heating_on_zolder:
       - delay: '00:01:00'
       - service: shell_command.read_ebus
 
-automation turn_heating_off_living:
-  - alias: 'turn heating living off'
+automation turn_heating_off_zolder:
+  - alias: 'turn heating zolder off'
     trigger:
       platform: state
       entity_id: input_boolean.turn_heating_zolder_on
@@ -874,6 +877,20 @@ automation alarm_:
     action:
       - service: input_boolean.turn_off
         entity_id: input_boolean.turn_heating_on
+      - delay: '00:02:00'
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.turn_heating_zolder_on
+
+automation alarm_tv:
+  - alias: turn tv off when alarm is on
+    trigger:
+      platform: state
+      entity_id: binary_sensor.alarm_state
+      from: 'off' #1 means alarm is off (somebody home)
+      to: 'on'
+    action:
+      - service: switch.turn_off
+        entity_id: switch.balco_2
 
 # automation alarm2:
 #   - alias: heating on when turning alarm off
@@ -900,6 +917,9 @@ automation alarm2_:
     action:
       - service: input_boolean.turn_on
         entity_id: input_boolean.turn_heating_on
+      - delay: '00:02:00'
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.turn_heating_zolder_on
 
 automation pomp_checks:
   - alias: periodic run pump
