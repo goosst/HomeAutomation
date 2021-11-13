@@ -1,40 +1,40 @@
 title: My Awesome Home
 views:
-    # View tab title.
+  # View tab title.
   - title: Highlights
     icon: mdi:home
     cards:
-    - type: entity
-      entity: input_number.mailboxfull
-      icon: mdi:mailbox
-      name: Post Box
-    - type: horizontal-stack
-      cards:
-        - type: sensor
-          entity: sensor.temperature_setpoint_living
-          name: temperature setpoint
-        - type: sensor
-          entity: sensor.temperature_living
-          name: temperature living
-    - type: horizontal-stack
-      title: Solar panels
-      cards:
-        - type: entity
-          entity: sensor.solaredge_energy_today
-          unit: Wh
-        - type: gauge
-          entity: sensor.solaredge_current_power
-          name: 'Solar power'
-          min: 0
-          max: 3000
-    - type: horizontal-stack
-      cards:
-        - type: sensor
-          entity: sensor.temperature_setpoint_zolder
-          name: temperature setpoint
-        - type: sensor
-          entity: sensor.temperature_zolder_vaillant
-          name: temperature zolder
+      - type: entity
+        entity: input_number.mailboxfull
+        icon: mdi:mailbox
+        name: Post Box
+      - type: horizontal-stack
+        cards:
+          - type: sensor
+            entity: sensor.temperature_setpoint_living
+            name: set temp living
+          - type: sensor
+            entity: sensor.temperature_living
+            name: temperature living
+      - type: horizontal-stack
+        cards:
+          - type: sensor
+            entity: sensor.temperature_setpoint_zolder
+            name: set temp zolder
+          - type: sensor
+            entity: sensor.temperature_zolder_vaillant
+            name: temperature zolder
+      - type: horizontal-stack
+        cards:
+          - type: entity
+            entity: sensor.solaredge_energy_today
+            unit: Wh
+            name: Solar Energy today
+          - type: gauge
+            entity: sensor.solaredge_current_power
+            name: Solar power
+            min: 0
+            max: 3000
   - title: Heating
     icon: mdi:radiator
     cards:
@@ -44,7 +44,6 @@ views:
           - sensor.temperature_setpoint_living
           - sensor.temperature_living
           - input_boolean.turn_heating_on
-          - switch.ventilator_control
           - input_number.slider_day
           - input_number.slider_night
           - input_number.slider1
@@ -70,7 +69,7 @@ views:
         entities:
           - switch.handdoekdroger_control
       - type: history-graph
-        title: 'heater setpunt'
+        title: "heater setpunt"
         entities:
           - sensor.temperature_flow_radiator
         hours_to_show: 72
@@ -88,14 +87,14 @@ views:
           - sensor.temperature_zolder
           - sensor.zoldernok_temp
       - type: history-graph
-        title: 'living temperature'
+        title: "living temperature"
         entities:
           - sensor.temperature_setpoint_living
           - sensor.temperature_living
         hours_to_show: 72
         refresh_interval: 600
       - type: history-graph
-        title: 'temp kamers'
+        title: "temp kamers"
         entities:
           - sensor.temperature_bathroom
           - sensor.temperature_slaapkamer
@@ -114,7 +113,7 @@ views:
   - title: Weather
     icon: mdi:weather-sunny
     cards:
-        # The markdown card will render markdown text.
+      # The markdown card will render markdown text.
       - type: entities
         title: Weersvoorspelling
         entities:
@@ -126,6 +125,7 @@ views:
           - sensor.br_rain_1d
           - sensor.br_wind_speed
           - sensor.br_wind_direction
+          - sensor.br_pressure
       - type: iframe
         url: https://weerdata.weerslag.nl/image/1.0/?size=ani-forecast-550x550&type=Freecontent&v=14487341
         aspect_ratio: 100%
@@ -147,7 +147,8 @@ views:
       - type: entities
         title: tuinverlichting
         entities:
-          - switch.verlichting_terras
+          - switch.verlichting_terras_1
+          - switch.verlichting_terras_2
       - type: entities
         title: zolderverlichting
         entities:
@@ -171,13 +172,13 @@ views:
               - sensor.robot_energy_start
               - sensor.robot_power
           - type: history-graph
-            title: 'Power'
+            title: "Power"
             entities:
               - sensor.robot_power
             hours_to_show: 72
             refresh_interval: 600
           - type: history-graph
-            title: 'Energy'
+            title: "Energy"
             entities:
               - sensor.robot_total_energy
             hours_to_show: 72
@@ -203,6 +204,7 @@ views:
           - switch.balco_2
           - switch.athom_2
           - switch.athom_car
+          - switch.ventilator_control
       - type: entities
         title: athom car
         entities:
@@ -219,7 +221,7 @@ views:
     icon: mdi:television-classic
     cards:
       - type: media-control
-        entity:  media_player.living_room_main
+        entity: media_player.living_room_main
       - type: entities
         title: Bluetooth speaker
         entities:
@@ -227,7 +229,7 @@ views:
           - input_boolean.pause_bluetooth_speaker
           - input_boolean.resume_bluetooth_speaker
       - type: media-control
-        entity:  media_player.living_room_tv
+        entity: media_player.living_room_tv
   - title: commute
     icon: mdi:car
     cards:
@@ -264,18 +266,18 @@ views:
       - type: entities
         title: water level
         entities:
-          - sensor.water_level_current
-          - sensor.water_level_voltage
+          - sensor.water_level_bus_voltage
+          - sensor.water_level_depth
       - type: history-graph
-        title: 'water level'
+        title: "water level"
         entities:
-          - sensor.water_level_current
+          - sensor.water_level_depth
         hours_to_show: 8760
         refresh_interval: 600
       - type: history-graph
-        title: 'waterniveau'
+        title: "barometric pressure"
         entities:
-          - sensor.waterlevel
+          - sensor.br_pressure
         hours_to_show: 8760
         refresh_interval: 600
   - title: zon
@@ -293,17 +295,37 @@ views:
           - sensor.solaredge_current_power
           - sensor.solaredge_energy_today
       - type: history-graph
-        title: 'solar power'
+        title: "solar power"
         entities:
           - sensor.solaredge_current_power
         hours_to_show: 168
         refresh_interval: 600
       - type: history-graph
-        title: 'solar energy'
+        title: "solar energy"
         entities:
           - sensor.solaredge_energy_today
         hours_to_show: 8760
         refresh_interval: 600
+      - type: history-graph
+        title: "wind voltage"
+        entities:
+          - sensor.wind_voltage
+        hours_to_show: 72
+        refresh_interval: 20
+      - type: history-graph
+        title: "wind torque setp"
+        entities:
+          - sensor.wind_torque_setp
+        hours_to_show: 1
+        refresh_interval: 20
+      - type: entities
+        title: wind
+        entities:
+          - sensor.wind_rotational_speed
+          - sensor.wind_power
+          - sensor.wind_voltage
+          - sensor.wind_torque_setp
+          - sensor.wind_message_counter
   - title: k8400
     icon: mdi:printer-3d
     cards:
@@ -332,7 +354,7 @@ views:
       - type: horizontal-stack
         cards:
           - type: entities
-            entities: 
+            entities:
               - input_select.led_printer
               - input_boolean.print_cancel
               - input_boolean.print_pause_cyclic
