@@ -32,7 +32,7 @@ with ILock('ebus', timeout=200):
 		# cp = subprocess.run(["ebusd -f --scanconfig >/dev/null 2>&1"],shell=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 		subprocess.Popen(["nohup", "ebusd", "-f", "--scanconfig"])
 		print('fubar')
-		time.sleep(60)
+		time.sleep(5)
 		cp = subprocess.run(["ebusctl read z1RoomTemp"],shell=True,stdout=subprocess.PIPE)
 		logging.error("read RoomTemp 2")
 		logging.error(cp)
