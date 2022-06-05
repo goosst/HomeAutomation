@@ -64,16 +64,50 @@ views:
           - sensor.pressure_boiler
           - entity: switch.s26_control
             name: "heating 2nd room"
-      - type: entities
-        title: Badkamer
-        entities:
-          - switch.handdoekdroger_control
       - type: history-graph
         title: "heater setpunt"
         entities:
           - sensor.temperature_flow_radiator
         hours_to_show: 72
         refresh_interval: 600
+  - title: switches
+    icon: mdi:toggle-switch
+    cards:
+      - type: entities
+        title: Zolder
+        entities:
+          - entity: switch.s26_b
+            name: Mollen
+          - entity: switch.athom_2
+            name: zolder desk
+          - entity: switch.balco_1
+            name: stereo - waterkoker
+          - entity: switch.ventilator_control
+            name: 3d printer
+      - type: entities
+        title: Living
+        entities:
+          - entity: switch.balco_2
+            name: TV
+          - entity: switch.s20_control
+            name: muur
+      - type: entities
+        title: Garage
+        entities:
+          - entity: switch.athom_car
+            name: car charger
+      - type: entities
+        title: athom car
+        entities:
+          - sensor.car_energy_today
+          - sensor.car_power
+          - sensor.car_total_energy
+      - type: entities
+        title: athom 2
+        entities:
+          - sensor.athom2_energy_today
+          - sensor.athom2_power
+          - sensor.athom2_total_energy
   - title: Temperatures
     icon: mdi:thermometer
     cards:
@@ -83,8 +117,11 @@ views:
           - sensor.temperature_buiten_vaillant
           - sensor.temperature_living
           - sensor.temperature_bathroom
-          - sensor.temperature_slaapkamer
-          - sensor.temperature_zolder
+          - entity: sensor.temperature_slaapkamer
+            name: temperature keuken
+          - entity: sensor.temperature_zolder
+            name: temperature zolder alarm
+          - sensor.temperature_zolder_vaillant
           - sensor.zoldernok_temp
       - type: history-graph
         title: "living temperature"
@@ -145,10 +182,11 @@ views:
           - light.tradfri_bulb_5
           - light.tradfri_bulb_8
       - type: entities
-        title: tuinverlichting
+        title: buitenverlichting
         entities:
           - switch.verlichting_terras_1
           - switch.verlichting_terras_2
+          - switch.opritverlichting
       - type: entities
         title: zolderverlichting
         entities:
@@ -192,31 +230,6 @@ views:
               - sensor.fluffie_battery
           - type: picture-entity
             entity: camera.fluffie_cleaning_map
-  - title: switches
-    icon: mdi:toggle-switch
-    cards:
-      - type: entities
-        title: schakelaars
-        entities:
-          - switch.s20_control
-          - switch.s26_control
-          - switch.balco_1
-          - switch.balco_2
-          - switch.athom_2
-          - switch.athom_car
-          - switch.ventilator_control
-      - type: entities
-        title: athom car
-        entities:
-          - sensor.car_energy_today
-          - sensor.car_power
-          - sensor.car_total_energy
-      - type: entities
-        title: athom 2
-        entities:
-          - sensor.athom2_energy_today
-          - sensor.athom2_power
-          - sensor.athom2_total_energy
   - title: media
     icon: mdi:television-classic
     cards:
@@ -262,22 +275,31 @@ views:
         entities:
           - sensor.humidity_zolder
           - sensor.humidity_bathroom
-          - sensor.humidity_slaapkamer
+          - entity: sensor.humidity_slaapkamer
+            name: humidity keuken
       - type: entities
         title: water level
         entities:
           - sensor.water_level_bus_voltage
           - sensor.water_level_depth
+          - sensor.water_level_depth_2
       - type: history-graph
         title: "water level"
         entities:
           - sensor.water_level_depth
+          - sensor.water_level_depth_2
         hours_to_show: 8760
         refresh_interval: 600
       - type: history-graph
-        title: "barometric pressure"
+        title: "measured air pressure"
         entities:
-          - sensor.br_pressure
+          - sensor.air_pressure
+        hours_to_show: 8760
+        refresh_interval: 600
+      - type: history-graph
+        title: "shunt voltage ina219"
+        entities:
+          - sensor.water_level_shunt
         hours_to_show: 8760
         refresh_interval: 600
   - title: zon

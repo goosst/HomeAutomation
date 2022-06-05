@@ -313,7 +313,7 @@ if alarm_on==True:
     logging.debug(time_off)
 
 
-    if time_hass>time_on and state_last_dummyheater=='new_alarm_set' and temp_last<16 and work_from_home=='on':
+    if time_hass>time_on and state_last_dummyheater=='new_alarm_set' and temp_last<18 and work_from_home=='on':
         msg2='on'
         payload='{"entity_id": "input_boolean.turn_heating_zolder_on"}'
         url='http://'+address_hass+':8123/api/services/input_boolean/turn_'+msg2

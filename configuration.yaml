@@ -164,30 +164,44 @@ sensor:
       - barometerfcname
   - platform: mqtt
     name: "Water level shunt"
-    state_topic: /sensor/WEMOSD1-14269530/data/shuntvolt
-    expire_after: 864000
+    state_topic: /sensor/WEMOSD1-4492602/data/shuntvolt
+    expire_after: 86400
     unit_of_measurement: "mV"
     payload_available: "Online"
     payload_not_available: "water level sensor offline"
   - platform: mqtt
     name: "Water level bus voltage"
-    state_topic: /sensor/WEMOSD1-14269530/data/voltage
-    expire_after: 864000
+    state_topic: /sensor/WEMOSD1-4492602/data/voltage
+    expire_after: 86400
     unit_of_measurement: "V"
     payload_available: "Online"
     payload_not_available: "water level sensor offline"
   - platform: mqtt
     name: "Water level dutyratio"
-    state_topic: /sensor/WEMOSD1-14269530/data/dutr
-    expire_after: 864000
+    state_topic: /sensor/WEMOSD1-4492602/data/dutr
+    expire_after: 86400
     unit_of_measurement: "%"
     payload_available: "Online"
     payload_not_available: "water level sensor offline"
   - platform: mqtt
     name: "Water level depth"
-    state_topic: /sensor/WEMOSD1-14269530/data/waterdepth
-    expire_after: 864000
+    state_topic: /sensor/WEMOSD1-4492602/data/waterdepth
+    expire_after: 86400
     unit_of_measurement: "m"
+    payload_available: "Online"
+    payload_not_available: "water level sensor offline"
+  - platform: mqtt
+    name: "Water level depth 2"
+    state_topic: /sensor/waterlevel/depth
+    expire_after: 86400
+    unit_of_measurement: "m"
+    payload_available: "Online"
+    payload_not_available: "water level sensor offline"
+  - platform: mqtt
+    name: "Air pressure"
+    state_topic: /sensor/WEMOSD1-4492602/data/airpress
+    expire_after: 86400
+    unit_of_measurement: "hPa"
     payload_available: "Online"
     payload_not_available: "water level sensor offline"
   - platform: mqtt
@@ -253,6 +267,7 @@ sensor:
     state_topic: tele/athom1_044E3E/SENSOR
     value_template: "{{ value_json['ENERGY'].Power }}"
     unit_of_measurement: "Watt"
+    force_update: true
   - platform: mqtt
     name: "Car total energy"
     state_topic: tele/athom1_044E3E/SENSOR
@@ -364,13 +379,16 @@ shell_command:
   set_temp_zolder_high: "python3 /home/homeassistant/.homeassistant/python_scripts/set_temp_zolder.py -t {{ states.input_number.slider_floor_day.state }}"
   set_temp_zolder_low: "python3 /home/homeassistant/.homeassistant/python_scripts/set_temp_zolder.py -t {{ states.input_number.slider_floor_night.state }}"
   set_temp_zolder: "python3 /home/homeassistant/.homeassistant/python_scripts/set_temp_zolder.py -t {{ states.input_number.slider_floor_now.state }}"
+  house_alarm_heating: "python3 /home/homeassistant/.homeassistant/python_scripts/heating_alarm.py"
+  powerswitch: "python3 /home/homeassistant/.homeassistant/python_scripts/powerSwitch.py"
+  water_well: "python3 /home/homeassistant/.homeassistant/python_scripts/waterdepth.py"
 
   # start_ebus: 'python3 /home/homeassistant/.homeassistant/python_scripts/start_ebus.py'
 
 input_number:
   slider1:
     name: Set Now
-    initial: 21
+    initial: 20.5
     min: 9
     max: 25
     step: 0.25
@@ -384,7 +402,7 @@ input_number:
     unit_of_measurement: "°C"
   slider_day:
     name: Temp Day
-    initial: 21
+    initial: 20.5
     min: 9
     max: 25
     step: 0.25
@@ -460,7 +478,7 @@ input_select:
 
 switch:
   - platform: mqtt
-    name: "handdoekdroger control"
+    name: "s26 b"
     command_topic: cmnd/s26_bath/Power1
     state_topic: stat/s26_bath/POWER
     payload_on: "ON"
@@ -602,7 +620,7 @@ input_text:
     initial: Name of music file
 
 webostv:
-  host: 192.168.0.136
+  host: 192.168.0.132
   name: Living Room TV
 
 shopping_list:
@@ -747,6 +765,22 @@ automation 3dprinter:
       seconds: "/30"
     action:
       - service: shell_command.octoprint
+
+automation WaterWellCalc:
+  - alias: WaterWell
+    trigger:
+      platform: time_pattern
+      seconds: "/30"
+    action:
+      - service: shell_command.water_well
+
+automation PowerSwitchTurnOff:
+  - alias: PowerSwitchTurnOff
+    trigger:
+      platform: time_pattern
+      minutes: "/5"
+    action:
+      - service: shell_command.powerswitch
 
 automation blemqtt_gateway:
   - alias: blemqttgateway
@@ -964,23 +998,53 @@ automation alarm2_:
       from: "on"
       to: "off"
     action:
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.turn_heating_on
-      - delay: "00:02:00"
-      - service: input_boolean.turn_on
-        entity_id: input_boolean.turn_heating_zolder_on
+      - service: shell_command.house_alarm_heating
+        # entity_id: input_boolean.turn_heating_on
+      # - delay: "00:02:00"
+      # - service: input_boolean.turn_on
+      #   entity_id: input_boolean.turn_heating_zolder_on
 
-automation pomp_checks:
-  - alias: periodic run pump
-    trigger:
-      - platform: time
-        at: "9:00:00"
-    action:
-      - service: switch.turn_on
-        entity_id: switch.s26_control
-      - delay: "00:05:00"
-      - service: switch.turn_off
-        entity_id: switch.s26_control
+automation mole_honking:
+  alias: mole honking
+  trigger:
+    platform: time_pattern
+    minutes: "/3"
+  action:
+    - service: switch.turn_on
+      entity_id: switch.s26_b
+    - delay: "00:00:06"
+    - service: switch.turn_off
+      entity_id: switch.s26_b
+
+# automation mole_honking:
+#   alias: mole honking
+#   trigger:
+#     platform: time_pattern
+#     minutes: "/5"
+#   condition:
+#     condition: and
+#     conditions:
+#       - condition: time
+#         after: "08:00:00"
+#         before: "22:00:00"
+#   action:
+#     - service: switch.turn_on
+#       entity_id: switch.s26_b
+#     - delay: "00:00:15"
+#     - service: switch.turn_off
+#       entity_id: switch.s26_b
+#
+# automation periodic_pump:
+#   - alias: periodic run pump
+#     trigger:
+#       - platform: time
+#         at: "9:00:00"
+#     action:
+#       - service: switch.turn_on
+#         entity_id: switch.s26_control
+#       - delay: "00:05:00"
+#       - service: switch.turn_off
+#         entity_id: switch.s26_control
 
 automation switches_dagtarief_schakel_uit:
   - alias: sonoff switches nachttarief uit
@@ -998,8 +1062,6 @@ automation switches_dagtarief_schakel_uit:
     action:
       - service: switch.turn_off
         entity_id: switch.s20_control
-      - service: switch.turn_off
-        entity_id: switch.balco_1
       - service: switch.turn_off
         entity_id: switch.athom_car
 
@@ -1019,8 +1081,6 @@ automation switches_dagtarief_schakel_aan:
     action:
       - service: switch.turn_on
         entity_id: switch.s20_control
-      - service: switch.turn_on
-        entity_id: switch.balco_1
       - service: switch.turn_on
         entity_id: switch.athom_car
 
