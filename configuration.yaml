@@ -51,9 +51,10 @@ zone:
     longitude: !secret work_gps_long
     icon: mdi:worker
 
-media_player:
-  - platform: yamaha_musiccast
-    host: 192.168.0.164
+# media_player:
+#   - platform: yamaha_musiccast
+#     host: 192.168.0.164
+# depreciated by home assistant --> replaced by python scripting
 
 mqtt:
   broker: 127.0.0.1
@@ -382,6 +383,7 @@ shell_command:
   house_alarm_heating: "python3 /home/homeassistant/.homeassistant/python_scripts/heating_alarm.py"
   powerswitch: "python3 /home/homeassistant/.homeassistant/python_scripts/powerSwitch.py"
   water_well: "python3 /home/homeassistant/.homeassistant/python_scripts/waterdepth.py"
+  soundbar: "python3 /home/homeassistant/.homeassistant/python_scripts/yamaha.py"
 
   # start_ebus: 'python3 /home/homeassistant/.homeassistant/python_scripts/start_ebus.py'
 
@@ -758,6 +760,14 @@ automation turn_off_ventilator:
         data:
           entity_id: switch.s26_control
 
+automation Soundbar:
+  - alias: Soundbar
+    trigger:
+      platform: time_pattern
+      minutes: "/5"
+    action:
+      - service: shell_command.soundbar
+
 automation 3dprinter:
   - alias: 3dprinter
     trigger:
@@ -902,39 +912,84 @@ automation slider_zolder:
 #     - service: input_boolean.turn_off
 #       entity_id: input_boolean.turn_heating_on
 
-automation lights_start_watch_tv:
-  - alias: lights_start_tv
+automation lights_stopped_watch_tv:
+  - alias: lights_sound_off
     trigger:
       platform: state
-      entity_id: media_player.living_room_main
+      entity_id: input_number.yamaha_power
       to: "off"
+    action:
+      - service: shell_command.lights_living
+
+automation lights_stopped_watch_tv2:
+  - alias: lights_sound_unknown
+    trigger:
+      platform: state
+      entity_id: input_number.yamaha_power
+      to: "unkown"
+    action:
+      - service: shell_command.lights_living
+
+automation lights_stop_watch_tv3:
+  - alias: lights_sound_idle
+    trigger:
+      platform: state
+      entity_id: input_number.yamaha_power
+      to: "standby"
+    action:
+      - service: shell_command.lights_living
+
+automation lights_stopped_watch_tv4:
+  - alias: lights_sound_bluetooth
+    trigger:
+      platform: state
+      entity_id: input_number.yamaha_input
+      to: "bluetooth"
+    action:
+      - service: shell_command.lights_living
+
+automation lights_start_watch_tv1:
+  - alias: lights_start_tv_power
+    trigger:
+      platform: state
+      entity_id: input_number.yamaha_power
+      to: "on"
     action:
       - service: shell_command.lights_living
 
 automation lights_start_watch_tv2:
   - alias: lights_start_tv2
     trigger:
-      platform: template
-      value_template: "{{ is_state_attr('media_player.living_room_main', 'source', 'tv') }}"
+      platform: state
+      entity_id: input_number.yamaha_input
+      to: "tv"
     action:
       - service: shell_command.lights_living
 
-automation lights_start_watch_tv3:
-  - alias: lights_start_tv2
-    trigger:
-      platform: template
-      value_template: "{{ is_state_attr('media_player.living_room_main', 'source', 'bluetooth') }}"
-    action:
-      - service: shell_command.lights_living
-
-automation lights_stop_watch_tv:
-  - alias: lights_stop_tv
+automation lights_living_on:
+  - alias: lights_living_on
     trigger:
       platform: state
-      entity_id: media_player.living_room_main
-      to: "idle"
+      entity_id: light.tradfri_bulb_s
+      to: "on"
     action:
       - service: shell_command.lights_living
+
+# automation lights_start_watch_tv2:
+#   - alias: lights_start_tv2
+#     trigger:
+#       platform: template
+#       value_template: "{{ is_state_attr('media_player.living_room_main', 'source', 'tv') }}"
+#     action:
+#       - service: shell_command.lights_living
+
+# automation lights_start_watch_tv3:
+#   - alias: lights_start_tv2
+#     trigger:
+#       platform: template
+#       value_template: "{{ is_state_attr('media_player.living_room_main', 'source', 'bluetooth') }}"
+#     action:
+#       - service: shell_command.lights_living
 
 # automation alarm:
 #   - alias: heating off when turning alarm on
@@ -1081,6 +1136,23 @@ automation switches_dagtarief_schakel_aan:
     action:
       - service: switch.turn_on
         entity_id: switch.s20_control
+      - service: switch.turn_on
+        entity_id: switch.athom_car
+
+automation switches_dagtarief_schakel_aan_2:
+  - alias: sonoff switches nachttarief aan 2
+    trigger:
+      - platform: time
+        at: "06:43:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
       - service: switch.turn_on
         entity_id: switch.athom_car
 

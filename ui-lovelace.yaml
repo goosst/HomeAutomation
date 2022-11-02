@@ -177,10 +177,10 @@ views:
       - type: entities
         title: Living
         entities:
-          - light.tradfri_bulb_2
-          - light.tradfri_bulb_3
-          - light.tradfri_bulb_5
-          - light.tradfri_bulb_8
+          - light.tradfri_bulb_e
+          - light.tradfri_bulb_n
+          - light.tradfri_bulb_w
+          - light.tradfri_bulb_s
       - type: entities
         title: buitenverlichting
         entities:
